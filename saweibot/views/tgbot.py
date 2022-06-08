@@ -4,9 +4,7 @@ from telebot.types import Update
 
 from saweibot.bots import peon_bot
 
-bp = Blueprint("telegram")
-
-
+bp = Blueprint("tgbot")
 
 @bp.post("/peon")
 async def peon(request: Request):
