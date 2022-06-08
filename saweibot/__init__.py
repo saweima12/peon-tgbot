@@ -1,20 +1,25 @@
 import ujson
-from requests import request
+import os
 from sanic import Sanic, Request, json, text
 from telebot import TeleBot
 from telebot.types import Message, Update, ChatMember
 
+from saweibot import config
 
+# define sanic app
 app = Sanic(__name__)
+app.update_config(config)
 
-BOT_TOKEN = ""
+# Loading configure.
+env_config_path = os.environ.get("SAWEIBOT_CONFIG")
+if env_config_path and os.path.exists(env_config_path):
+    app.update_config(env_config_path)
 
-bot = TeleBot(BOT_TOKEN)
-
+bot = TeleBot(app.config.BOT_TOKEN)
 
 @app.post('/hook')
 async def webhook_handler(request: Request):
-    data =  ujson.dumps(request.load_json())
+    data = ujson.dumps(request.load_json())
     print(data)
     try:
         _update = Update.de_json(data)
