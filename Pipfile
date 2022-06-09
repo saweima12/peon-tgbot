@@ -7,8 +7,10 @@ name = "pypi"
 werkzeug = "*"
 sanic = "*"
 pytelegrambotapi = "*"
+aiogram = "*"
+tortoise-orm = {extras = ["asyncpg"], version = "*"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
