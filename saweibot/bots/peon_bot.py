@@ -10,6 +10,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes
 
 SERVICE_CODE = "peon_bot"
+DP_CODE = f"{SERVICE_CODE}_dp"
 
 async def get_bot() -> Bot:
     app = Sanic.get_app()
@@ -17,8 +18,8 @@ async def get_bot() -> Bot:
 
 async def get_dp() -> Dispatcher:
     app = Sanic.get_app()
-    return getattr(app.ctx, f"{SERVICE_CODE}_dp")
-    
+    return getattr(app.ctx, DP_CODE)
+
 async def setup(app: Sanic):
     bot = Bot(token=app.config.TGBOT_PEON_TOKEN)
     dp = Dispatcher(bot)
@@ -28,8 +29,7 @@ async def setup(app: Sanic):
     async def on_message(message: Message):
         Bot.set_current(bot)
         await message.reply("test")
-        bot.delete_message()
-        await message.delete()
+        await bot.delete_message(message.chat.id, message.message_id)
         print(message)
 
 
@@ -39,5 +39,16 @@ async def setup(app: Sanic):
 
     # Attach to ctx
     setattr(app.ctx, SERVICE_CODE, bot)
-    setattr(app.ctx, f"{SERVICE_CODE}_dp", dp)
+    setattr(app.ctx, DP_CODE, dp)
     logger.info(f"Register bot: {SERVICE_CODE}")
+
+async def dispose(app: Sanic):
+    if hasattr(app.ctx, SERVICE_CODE):
+        bot: Bot = getattr(app.ctx, SERVICE_CODE)
+        await bot.delete_webhook()
+        logger.info(f"Close Bot: {SERVICE_CODE}")
+
+    if hasattr(app.ctx, DP_CODE):
+        dp: Dispatcher = getattr(app.ctx, DP_CODE)
+        await dp.reset_webhook()
+        logger.info(f"Close Dispatcher: {DP_CODE}")

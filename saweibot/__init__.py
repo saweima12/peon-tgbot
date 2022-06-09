@@ -27,6 +27,7 @@ async def startup(app: Sanic, loop):
 @app.before_server_stop
 async def shutdown(app:Sanic, loop):
     print("shutdown")
+    await bots.dispose_bots(app)
 
 
 # register database orm.

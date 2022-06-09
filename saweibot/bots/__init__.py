@@ -1,5 +1,8 @@
 from sanic import Sanic
-from .peon_bot import setup as peon_setup
+from . import peon_bot
 
 async def register_bots(app: Sanic):
-    await peon_setup(app)
+    await peon_bot.setup(app)
+
+async def dispose_bots(app: Sanic):
+    await peon_bot.dispose(app)
