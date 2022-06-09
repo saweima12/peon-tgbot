@@ -41,6 +41,7 @@ async def setup(app: Sanic):
     setattr(app.ctx, SERVICE_CODE, bot)
     setattr(app.ctx, DP_CODE, dp)
     logger.info(f"Register bot: {SERVICE_CODE}")
+    logger.info(f"Register Dispatcher: {DP_CODE}")
 
 async def dispose(app: Sanic):
     if hasattr(app.ctx, SERVICE_CODE):
