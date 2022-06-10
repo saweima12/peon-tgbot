@@ -1,4 +1,7 @@
+# Bot Webhook
 DOMAIN_URL=""
-
 TGBOT_PEON_TOKEN=""
-PEON_DB_URI=""
+
+# Database
+POSTGRES_URI=""
+REDIS_URI="redis://localhost:6379"

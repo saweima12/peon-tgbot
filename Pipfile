@@ -9,6 +9,8 @@ sanic = "*"
 pytelegrambotapi = "*"
 aiogram = "*"
 tortoise-orm = {extras = ["asyncpg"], version = "*"}
+redis = "*"
+pydantic = "*"
 
 [dev-packages]
 
