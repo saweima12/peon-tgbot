@@ -7,6 +7,7 @@ from sanic import Sanic, Request, json, text
 from tortoise.contrib.sanic import register_tortoise
 
 from saweibot import config
+from saweibot.db import redis
 import saweibot.bots as bots
 import saweibot.views as views
 
@@ -21,7 +22,7 @@ if env_config_path and os.path.exists(env_config_path):
 
 # register database orm.
 register_tortoise(app, 
-    db_url=app.config['PEON_DB_URI'], 
+    db_url=app.config['POSTGRES_URI'], 
     modules={"entities": ["saweibot.entities"]}, generate_schemas=False
 )
 
@@ -29,6 +30,7 @@ register_tortoise(app,
 @app.before_server_start
 async def startup(app: Sanic, loop):
     print("startup")
+    await redis.setup(app)
     await bots.register_bots(app)
     print("another")
 
