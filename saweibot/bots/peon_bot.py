@@ -1,5 +1,4 @@
 import os
-import ujson
 from urllib.parse import urljoin
 
 from sanic import Sanic
@@ -12,11 +11,11 @@ from aiogram.types import Message, ContentTypes
 SERVICE_CODE = "peon_bot"
 DP_CODE = f"{SERVICE_CODE}_dp"
 
-async def get_bot() -> Bot:
+def get_bot() -> Bot:
     app = Sanic.get_app()
     return getattr(app.ctx, SERVICE_CODE)
 
-async def get_dp() -> Dispatcher:
+def get_dp() -> Dispatcher:
     app = Sanic.get_app()
     return getattr(app.ctx, DP_CODE)
 
@@ -30,9 +29,8 @@ async def setup(app: Sanic):
         Bot.set_current(bot)
         await message.reply("test")
         await bot.delete_message(message.chat.id, message.message_id)
-        print(message)
 
-
+    # register webhook uri.
     hook_route = os.path.join("/tgbot/peon", app.config.TGBOT_PEON_TOKEN)
     webhook_uri = urljoin(app.config['DOMAIN_URL'], hook_route)
     await bot.set_webhook(webhook_uri)

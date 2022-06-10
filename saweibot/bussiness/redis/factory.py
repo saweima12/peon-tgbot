@@ -13,7 +13,6 @@ class RedisContextFactory:
     async def create(cls, conn: Redis=None):
         """
         Create RedisContextFactory by asynchronous
-        
         """
         # get default redis connection.
         if not conn:

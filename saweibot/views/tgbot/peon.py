@@ -15,7 +15,7 @@ async def me(request: Request):
 
     :param reuqest [sanic.Request]
     """
-    bot = await peon_bot.get_bot()
+    bot = peon_bot.get_bot()
     me = await bot.get_me()
 
     return text(me.as_json())
@@ -29,7 +29,7 @@ async def peon(request: Request, token: str):
     :param reuqest [sanic.Reqeust]
     :param token [str] -> Telegram.bot_token
     """
-    dp = await peon_bot.get_dp()
+    dp = peon_bot.get_dp()
     _update = Update(**request.json)
     try:
         await dp.process_updates([_update])
