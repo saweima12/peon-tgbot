@@ -1,4 +1,3 @@
-import ujson
 from sanic import Sanic
 from sanic.log import logger
 from redis.asyncio import Redis

@@ -4,9 +4,10 @@ from urllib.parse import urljoin
 from sanic import Sanic
 from sanic.log import logger
 
-
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message, ContentTypes
+from aiogram.types import Message, ContentTypes, ChatType
+
+from saweibot.bussiness.bot import peon_bll
 
 SERVICE_CODE = "peon_bot"
 DP_CODE = f"{SERVICE_CODE}_dp"
@@ -22,13 +23,25 @@ def get_dp() -> Dispatcher:
 async def setup(app: Sanic):
     bot = Bot(token=app.config.TGBOT_PEON_TOKEN)
     dp = Dispatcher(bot)
+    
+    # handle start command
+    @dp.message_handler(commands=['start'])
+    async def on_start_command(message: Message):
+        print(message, message.content_type)
 
-    # define bot handle
-    @dp.message_handler(content_types=ContentTypes.ANY | ContentTypes.ANIMATION | ContentTypes.AUDIO | ContentTypes.STICKER)
-    async def on_message(message: Message):
+    # handle new member command
+    @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
+    async def on_join_chat(message: Message):
+        print(message)
+
+    # handle chat message, include sticker, animation, video, voice, text.
+    @dp.message_handler(content_types=ContentTypes.ANY)
+    async def on_chat_message(message: Message):
         Bot.set_current(bot)
-        await message.reply("test")
-        await bot.delete_message(message.chat.id, message.message_id)
+        try:
+            await peon_bll.process_chat_message(message, bot)
+        except Exception as _e:
+            print(_e)
 
     # register webhook uri.
     hook_route = os.path.join("/tgbot/peon", app.config.TGBOT_PEON_TOKEN)

@@ -1,4 +1,3 @@
-import asyncio
 from redis.asyncio import Redis
 
 class RedisCircularBuffer(object):
