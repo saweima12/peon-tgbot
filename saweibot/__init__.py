@@ -1,9 +1,9 @@
 import os
-import ujson
 from telebot import TeleBot
 from telebot.types import Message, Update, ChatMember
 
 from sanic import Sanic, Request, json, text
+from sanic.log import logger
 from tortoise.contrib.sanic import register_tortoise
 
 from saweibot import config
@@ -23,16 +23,17 @@ if env_config_path and os.path.exists(env_config_path):
 # register database orm.
 register_tortoise(app, 
     db_url=app.config['POSTGRES_URI'], 
-    modules={"entities": ["saweibot.entities"]}, generate_schemas=False
+    modules={"entities": ["saweibot.entities"]}, 
+    generate_schemas=True
 )
-
 
 @app.before_server_start
 async def startup(app: Sanic, loop):
-    print("startup")
     await redis.setup(app)
+
+@app.after_server_start
+async def configure_service(app: Sanic, loop):
     await bots.register_bots(app)
-    print("another")
 
 @app.before_server_stop
 async def shutdown(app:Sanic, loop):
