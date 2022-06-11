@@ -1,33 +1,40 @@
-from sanic import Sanic, Request, Blueprint, response, text
+from sanic import HTTPResponse, Sanic, Request, Blueprint, response, text
 from aiogram.types import Update
 
-from saweibot.bots import peon_bot
+from .bot import get_bot, get_dp
 
-bp = Blueprint("tgbot", url_prefix="/peon")
+bp = Blueprint("peon_bot", url_prefix="/peon")
 
 
 @bp.get("/")
-async def me(request: Request):
+async def me(request: Request) -> HTTPResponse:
     """
     PeonBot Index
 
     :param reuqest [sanic.Request]
     """
-    bot = peon_bot.get_bot()
+    bot = get_bot()
     me = await bot.get_me()
 
     return text(me.as_json())
 
 
 @bp.post("/<token:str>")
-async def peon(request: Request, token: str):
+async def peon(request: Request, token: str) -> HTTPResponse:
     """
     PeonBot Webhook
 
     :param reuqest [sanic.Reqeust]
     :param token [str] -> Telegram.bot_token
     """
-    dp = peon_bot.get_dp()
+    # check token is correct.
+    bot = get_bot()
+
+    if bot._token != token:
+        return response.empty(status=404)
+
+    # dispatch update event.
+    dp = get_dp()
     _update = Update(**request.json)
     try:
         await dp.process_update(_update)

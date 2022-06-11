@@ -7,9 +7,9 @@ from sanic.log import logger
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes, ChatType
 
-from saweibot.bussiness.bot import peon_bll
+from . import bussiness
+from .meta import SERVICE_CODE
 
-SERVICE_CODE = "peon_bot"
 DP_CODE = f"{SERVICE_CODE}_dp"
 
 def get_bot() -> Bot:
@@ -27,7 +27,11 @@ async def setup(app: Sanic):
     # handle start command
     @dp.message_handler(commands=['start'])
     async def on_start_command(message: Message):
-        print(message, message.content_type)
+        try:
+            await bussiness.process_start_command(message, bot)
+        except Exception as _e:
+            pass
+
 
     # handle new member command
     @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
@@ -39,12 +43,12 @@ async def setup(app: Sanic):
     async def on_chat_message(message: Message):
         Bot.set_current(bot)
         try:
-            await peon_bll.process_chat_message(message, bot)
+            await bussiness.process_chat_message(message, bot)
         except Exception as _e:
             print(_e)
 
     # register webhook uri.
-    hook_route = os.path.join("/tgbot/peon", app.config.TGBOT_PEON_TOKEN)
+    hook_route = os.path.join("/peon", app.config.TGBOT_PEON_TOKEN)
     webhook_uri = urljoin(app.config['DOMAIN_URL'], hook_route)
     await bot.set_webhook(webhook_uri)
 
