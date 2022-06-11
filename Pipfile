@@ -11,6 +11,7 @@ aiogram = "*"
 tortoise-orm = {extras = ["asyncpg"], version = "*"}
 redis = "*"
 pydantic = "*"
+orjson = "*"
 
 [dev-packages]
 
