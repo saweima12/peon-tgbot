@@ -1,5 +1,3 @@
-from sys import prefix
-import ujson
 from sanic import Sanic, Request, Blueprint, response, text
 from aiogram.types import Update
 
@@ -32,7 +30,7 @@ async def peon(request: Request, token: str):
     dp = peon_bot.get_dp()
     _update = Update(**request.json)
     try:
-        await dp.process_updates([_update])
+        await dp.process_update(_update)
         return response.empty(status=200)
     except Exception as _e:
         print(_e)
