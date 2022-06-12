@@ -1,10 +1,10 @@
 from sanic import Sanic
-from tortoise.contrib.pydantic import pydantic_model_creator
 
 from saweibot.core.entities import BotConfig
 
-from . import bot, meta, view
-from .data.models import PeonBotConfig
+from . import bot, view
+from .data import meta
+from .data.models import BotConfigModel
 
 def register_bot(app: Sanic, orm_modules: dict):
 
@@ -17,7 +17,7 @@ def register_bot(app: Sanic, orm_modules: dict):
         if not await BotConfig.exists(bot_id=meta.SERVICE_CODE):
             await BotConfig.create(
                 bot_id=meta.SERVICE_CODE, 
-                conf_json=PeonBotConfig().dict(),
+                conf_json=BotConfigModel().dict(),
                 attach_json={}
             )
        

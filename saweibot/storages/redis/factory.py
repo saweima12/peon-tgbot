@@ -12,11 +12,11 @@ class RedisObjFactory:
         self.conn = conn if conn else get_db()
         self.prefix = prefix
 
-    def get_json_obj(self, *args):
+    def get_json_obj(self, *args) -> RedisJsonObject:
         _namespace = self._get_namespace(*args)
         return RedisJsonObject(_namespace, self.conn)
 
-    def get_circular_buffer(self, size: int, *args):
+    def get_circular_buffer(self, size: int, *args) -> RedisCircularBuffer:
         _namespace = self._get_namespace(*args, "msgbuf")
         return RedisCircularBuffer(_namespace, size, self.conn)
 

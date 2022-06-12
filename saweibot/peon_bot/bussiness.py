@@ -3,7 +3,7 @@ from aiogram.types import Message
 
 from saweibot.storages.redis import RedisObjFactory
 
-from .meta import SERVICE_CODE
+from .data.meta import SERVICE_CODE
 
 
 async def process_start_command(message: Message, bot: Bot):

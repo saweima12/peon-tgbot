@@ -1,4 +1,5 @@
 from redis.asyncio import Redis
+from typing import List, Any
 
 class RedisCircularBuffer(object):
 
@@ -12,9 +13,9 @@ class RedisCircularBuffer(object):
         await self.redis.ltrim(self.namespace, 0, self.size - 1)
 
     @property
-    async def length(self):
+    async def length(self) -> int:
         return await self.redis.llen(self.namespace)
 
     @property
-    async def list(self):
+    async def list(self) -> List[Any]:
         return await self.redis.lrange(self.namespace, 0, self.size)

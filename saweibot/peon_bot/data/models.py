@@ -1,9 +1,9 @@
-from lib2to3.pytree import Base
-from pydantic import BaseModel
+from saweibot.core.extension import OrjsonBaseModel
+from typing import Dict
 
-class PeonBotConfig(BaseModel):
+class BotConfigModel(OrjsonBaseModel):
     buffer_size: int = 50
 
 
-class PeonBotWhitelist(BaseModel):
-    pass
+class ChatWhitelistModel(OrjsonBaseModel):
+    whitelist_map: Dict[str, str] = {}
