@@ -1,4 +1,5 @@
-from asyncio.log import logger
+# coding=utf-8
+from sanic.log import logger
 from aiogram import Bot
 from aiogram.types import Message
 
@@ -10,52 +11,49 @@ from .data.wrappers.chat_config import ChatConfigWrapper
 from .helper import MessageHelepr
 
 async def process_start_command(message: Message, bot: Bot):
-    print("on start:", message.as_json())
     helper = MessageHelepr(SERVICE_CODE, message)
 
     if not await helper.is_whitelist_user():
         return 
 
-    if helper.is_chat_group:
-        if await helper.is_chat_registed():
-            await helper.msg.reply("The group has already register")
-            return
-            # register chat_id
+    if await helper.is_group_registed():
+        await helper.msg.reply("The group has already register")
+        return
+
+    if helper.is_group:
+        # register group chat.
         wrapper = ChatConfigWrapper(SERVICE_CODE, helper.chat_id)
         await wrapper.save_proxy()
         await helper.msg.reply("The group register finished.")
-        return
+        logger.info(f"Register group - {helper.chat.full_name}")
 
 
 async def process_join_chat(message: Message, bot: Bot):
-    print("on join:", message.as_json())
+    logger.info("on join:", message.as_json())
 
 async def process_chat_message(message: Message, bot: Bot):
-
     helper = MessageHelepr(SERVICE_CODE, message)
-    if helper.is_chat_group:
-        # group chat.
+    
+    if helper.is_group:
         await _process_group_msg(helper, bot)
-        return
 
-    await _process_private_msg(helper, bot)
-    # 
+    elif helper.is_private_chat:
+        await _process_private_msg(helper, bot)
 
 async def _process_group_msg(helper: MessageHelepr, bot: Bot):
 
-    if not await helper.is_chat_registed():
-        return 
+    # check chat_id in whitelist.
+    if not await helper.is_group_registed():
+        return
 
     # custom command handle
+    print("weed")
+
     # print(message)
     # check message rule.
     # write into msg buffer.
-    # check chat_id in whitelist.
-    buffer = RedisObjFactory(prefix=SERVICE_CODE).get_circular_buffer(40, )
-    await buffer.append(helper.msg.as_json())
-
-
-
+    buffer = RedisObjFactory(prefix=SERVICE_CODE).get_circular_buffer(40, "prog")
+    await buffer.append(helper.content.as_json())
 
 async def _process_private_msg(helper: MessageHelepr, bot: Bot):
     pass
