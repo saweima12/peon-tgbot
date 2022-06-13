@@ -1,3 +1,4 @@
+from attr import field
 from tortoise import fields
 from tortoise.models import Model
 
@@ -12,14 +13,24 @@ class PeonChatConfig(Model):
     class Meta:
         table = "peon_chat_config"
 
-class ChatWhitelist(Model):
+class UserWhitelist(Model):
 
-    chat_id = fields.CharField(max_length=40, index=True)
+    user_id = fields.CharField(max_length=40, index=True)
     status = fields.CharField(max_length=8)
     created_date = fields.DatetimeField(auto_now_add=True)
     
     class Meta:
-        table = "peon_chat_whitelist"
+        table = "peon_user_whitelist"
+
+class UrlBlackList(Model):
+
+    url_ptn = fields.TextField()
+    status = fields.CharField(max_length=8)
+    created_date = fields.DatetimeField(auto_now_add=True)
+
+    class Meta:
+        table = "peon_url_blacklist"
+
 
 class BehaviorRecord(Model):
 
