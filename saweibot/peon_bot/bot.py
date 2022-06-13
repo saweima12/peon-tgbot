@@ -1,4 +1,5 @@
 import os
+import traceback
 from urllib.parse import urljoin
 
 from sanic import Sanic
@@ -27,15 +28,26 @@ async def setup(app: Sanic):
     # handle start command
     @dp.message_handler(commands=['start'])
     async def on_start_command(message: Message):
+        Bot.set_current(bot)
         try:
             await bussiness.process_start_command(message, bot)
         except Exception as _e:
-            pass
+            logger.error(traceback.format_exc())
 
+    # handle start command
+    @dp.message_handler(commands=['about'])
+    async def on_about_command(message: Message):
+        Bot.set_current(bot)
+        try:
+            await message.reply(message.from_user.as_json())
+            await message.reply(message.chat.as_json())
+        except Exception as _e:
+            logger.error(traceback.format_exc())
 
     # handle new member command
     @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
     async def on_join_chat(message: Message):
+        Bot.set_current(bot)
         print(message)
 
     # handle chat message, include sticker, animation, video, voice, text.
@@ -45,7 +57,7 @@ async def setup(app: Sanic):
         try:
             await bussiness.process_chat_message(message, bot)
         except Exception as _e:
-            print(_e)
+            logger.error(traceback.format_exc())
 
     # register webhook uri.
     hook_route = os.path.join("/peon", app.config.TGBOT_PEON_TOKEN)
