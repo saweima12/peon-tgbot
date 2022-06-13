@@ -1,11 +1,11 @@
 from saweibot.core.wrapper import BaseModelWrapper
-from saweibot.storages.redis import RedisJsonObject
+from saweibot.storages.redis import RedisCircularBuffer
 
-from ..models import BotConfigModel
+from ..models import ChatMessageModel
 
-class ChatMessageWrapper(BaseModelWrapper[BotConfigModel, RedisJsonObject]):
+class ChatMessageWrapper(BaseModelWrapper[ChatMessageModel, RedisCircularBuffer]):
 
-    __model__ = BotConfigModel
+    __model__ = ChatMessageModel
 
     def __init__(self, bot_id: str, chat_id: str, size: int):
         self.bot_id = bot_id
@@ -17,7 +17,7 @@ class ChatMessageWrapper(BaseModelWrapper[BotConfigModel, RedisJsonObject]):
         return self.factory(self.bot_id).get_circular_buffer(self.size)
 
     async def _from_proxy(self):
-        return await super()._from_proxy()
+        _data = await self.proxy.list()
 
     async def _save_proxy(self, data, **kwargs):
         return await super()._save_proxy(data, **kwargs)
