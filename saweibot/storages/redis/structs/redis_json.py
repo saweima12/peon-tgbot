@@ -1,12 +1,9 @@
 import orjson as json
 from redis.asyncio import Redis
+from .base import RedisObjectBase
 
-class RedisJsonObject(object):
+class RedisJsonObject(RedisObjectBase):
     
-    def __init__(self, namespace:str, redis: Redis):
-        self.namespace = namespace
-        self.redis = redis
-
     async def set(self, obj: dict, path="."):
         await self.redis.json().set(self.namespace, path, obj)
 

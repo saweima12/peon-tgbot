@@ -1,7 +1,4 @@
 import os
-from telebot import TeleBot
-from telebot.types import Message, Update, ChatMember
-
 from sanic import Sanic, Request, json, text
 from sanic.log import logger
 from tortoise.contrib.sanic import register_tortoise

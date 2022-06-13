@@ -1,12 +1,13 @@
 from redis.asyncio import Redis
 from typing import List, Any
 
-class RedisCircularBuffer(object):
+from .base import RedisObjectBase
+
+class RedisCircularBuffer(RedisObjectBase):
 
     def __init__(self, namespace:str, size: int, redis: Redis):
-        self.namespace = namespace
         self.size = size
-        self.redis = redis
+        super().__init__(namespace, redis)
 
     async def append(self, item):
         await self.redis.lpush(self.namespace, item)
