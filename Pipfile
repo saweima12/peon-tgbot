@@ -4,9 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-werkzeug = "*"
 sanic = "*"
-pytelegrambotapi = "*"
 aiogram = "*"
 tortoise-orm = {extras = ["asyncpg"], version = "*"}
 redis = "*"
