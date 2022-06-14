@@ -35,6 +35,16 @@ async def setup(app: Sanic):
             logger.error(traceback.format_exc())
 
     # handle start command
+    @dp.message_handler(commands=['stop'])
+    async def on_stop_command(message: Message):
+        Bot.set_current(bot)
+        try:
+            await bussiness.process_stop_command(message, bot)
+        except Exception as _e:
+            logger.error(traceback.format_exc())
+
+
+    # handle start command
     @dp.message_handler(commands=['about'])
     async def on_about_command(message: Message):
         Bot.set_current(bot)
