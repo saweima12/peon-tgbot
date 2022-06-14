@@ -11,6 +11,7 @@ class BlacklistModel(OrjsonBaseModel):
 
 class BotConfigModel(OrjsonBaseModel):
     buffer_size: int = 50
+    maintainer: Dict[str, Status] = {}
 
 class ChatConfigModel(OrjsonBaseModel):
     buffer_size: int = 50
@@ -18,10 +19,11 @@ class ChatConfigModel(OrjsonBaseModel):
 
 class ChatMessageModel(OrjsonBaseModel):
     message_id: str
-    is_bot: str
+    content_type: str
+    is_bot: bool
     user_id: str
     chat_id: str
-    content: Dict[str, Any]
+    content: Any
 
 class FileContentModel(OrjsonBaseModel):
     file_id: str

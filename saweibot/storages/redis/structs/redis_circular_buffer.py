@@ -1,5 +1,6 @@
+import orjson
 from redis.asyncio import Redis
-from typing import List, Any
+from typing import List, Any, Dict
 
 from .base import RedisObjectBase
 
@@ -9,14 +10,13 @@ class RedisCircularBuffer(RedisObjectBase):
         self.size = size
         super().__init__(namespace, redis)
 
-    async def append(self, item):
+    async def append(self, item: Dict[str, Any]):
+        item = orjson.dumps(item)
         await self.redis.lpush(self.namespace, item)
         await self.redis.ltrim(self.namespace, 0, self.size - 1)
 
-    @property
     async def length(self) -> int:
         return await self.redis.llen(self.namespace)
 
-    @property
     async def list(self) -> List[Any]:
-        return await self.redis.lrange(self.namespace, 0, self.size)
+        return await self.redis.lrange(self.namespace, 0, self.size - 1)

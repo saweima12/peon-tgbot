@@ -1,10 +1,9 @@
-from saweibot.core.wrapper import BaseModelWrapper
-from saweibot.storages.redis import RedisJsonObject
+from saweibot.core.wrapper import JsonModelWrapper
 
 from ..entities import PeonChatConfig
 from ..models import ChatConfigModel
 
-class ChatConfigWrapper(BaseModelWrapper[ChatConfigModel, RedisJsonObject]):
+class ChatConfigWrapper(JsonModelWrapper[ChatConfigModel]):
 
     __model__ = ChatConfigModel
 

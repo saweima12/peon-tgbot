@@ -19,3 +19,6 @@ class RedisObjectBase(metaclass=ABCMeta):
     async def exists(self):
         # return False
         return (await self.__redis.exists(self.__namespace)) > 0
+    
+    async def delete(self):
+        return await self.__redis.delete(self.__namespace)

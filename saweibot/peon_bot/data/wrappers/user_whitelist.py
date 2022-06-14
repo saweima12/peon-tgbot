@@ -1,10 +1,9 @@
-from saweibot.core.wrapper import BaseModelWrapper
-from saweibot.storages.redis.structs.redis_json import RedisJsonObject
+from saweibot.core.wrapper import JsonModelWrapper
 
 from ..entities import UserWhitelist
 from ..models import WhitelistModel
 
-class UserWhitelistWrapper(BaseModelWrapper[WhitelistModel, RedisJsonObject]):
+class UserWhitelistWrapper(JsonModelWrapper[WhitelistModel]):
 
     __model__ = WhitelistModel
 
@@ -13,7 +12,7 @@ class UserWhitelistWrapper(BaseModelWrapper[WhitelistModel, RedisJsonObject]):
         super().__init__()
 
     def _proxy(self):
-        return self.factory(prefix=self.bot_id).get_json_obj("user_whitelist")
+        return self.factory(prefix=self.bot_id).get_json_obj("__user_whitelist")
 
     async def _from_proxy(self):
         result = await self.proxy.get()

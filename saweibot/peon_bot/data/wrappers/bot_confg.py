@@ -1,10 +1,9 @@
 from saweibot.core.entities import BotConfig
-from saweibot.core.wrapper import BaseModelWrapper
-from saweibot.storages.redis import RedisJsonObject
+from saweibot.core.wrapper import JsonModelWrapper
 
 from ..models import BotConfigModel
 
-class BotConfigWrapper(BaseModelWrapper[BotConfigModel, RedisJsonObject]):
+class BotConfigWrapper(JsonModelWrapper[BotConfigModel]):
 
     __model__ = BotConfigModel
 
@@ -12,8 +11,8 @@ class BotConfigWrapper(BaseModelWrapper[BotConfigModel, RedisJsonObject]):
         self.bot_id = bot_id
         super().__init__()
 
-    def _proxy(self) -> RedisJsonObject:
-        return self.factory(self.bot_id).get_json_obj("config")
+    def _proxy(self):
+        return self.factory(self.bot_id).get_json_obj("__config")
 
     async def _from_proxy(self):
         result = await self.proxy.get()

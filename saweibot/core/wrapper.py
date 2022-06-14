@@ -4,19 +4,39 @@ from pydantic import BaseModel
 from saweibot.storages.redis import RedisObjFactory, RedisObjectBase
 from typing import TypeVar, Type, Generic
 
+from saweibot.storages.redis.structs.redis_json import RedisJsonObject
+
 WRAPPED_MODEL = TypeVar("WRAPPED_MODEL", bound=BaseModel)
 PROXY_OBJECT = TypeVar("PROXY_OBJECT", bound=RedisObjectBase)
 
-class BaseModelWrapper(Generic[WRAPPED_MODEL, PROXY_OBJECT], metaclass=ABCMeta):
-
-    __model__ : WRAPPED_MODEL
-    
-    def __init__(self):
-        self.__data: WRAPPED_MODEL = None
+class BaseModelWrapper(Generic[PROXY_OBJECT], metaclass=ABCMeta):
 
     @final
     def factory(self, prefix: str=None):
         return RedisObjFactory(prefix=prefix)
+
+    @property
+    @final
+    def proxy(self) -> PROXY_OBJECT:
+        """
+        Get proxy object from _proxy implement.
+        """
+        return self._proxy()
+
+    # Deinfe how to get proxy object.
+    @abstractmethod
+    def _proxy(self): 
+        raise NotImplementedError        
+
+
+
+class JsonModelWrapper(Generic[WRAPPED_MODEL], BaseModelWrapper[RedisJsonObject], metaclass=ABCMeta):
+    
+    __model__ : WRAPPED_MODEL
+
+    def __init__(self):
+        self.__data = None
+        
 
     @final
     async def get_model(self, auto_save: bool = True) -> WRAPPED_MODEL:
@@ -47,13 +67,6 @@ class BaseModelWrapper(Generic[WRAPPED_MODEL, PROXY_OBJECT], metaclass=ABCMeta):
         self.__data = self.__model__()
         return self.__data
 
-    @property
-    @final
-    def proxy(self) -> PROXY_OBJECT:
-        """
-        Get proxy object from _proxy implement.
-        """
-        return self._proxy()
 
     @final
     async def from_proxy(self) -> WRAPPED_MODEL:
@@ -88,10 +101,6 @@ class BaseModelWrapper(Generic[WRAPPED_MODEL, PROXY_OBJECT], metaclass=ABCMeta):
         """
         data = data if data else (await self.load())
         await self._save_db(data, **kwargs)
-
-    # Deinfe how to get proxy object.
-    def _proxy(self): 
-        raise NotImplementedError        
 
     # Define abstract load method.
     async def _from_proxy(self):
