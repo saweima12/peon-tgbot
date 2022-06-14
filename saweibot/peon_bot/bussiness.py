@@ -7,7 +7,6 @@ from aiogram.types import Message
 from saweibot.storages.redis import RedisObjFactory
 
 from .data.meta import SERVICE_CODE
-from .data.wrappers.chat_message import ChatMessageWrapper
 from .data.wrappers.chat_config import ChatConfigWrapper
 from .helper import MessageHelepr
 from .command import map as command_map
@@ -27,7 +26,7 @@ async def process_start_command(message: Message, bot: Bot):
     # chekc target is group.
     if helper.is_group():
         # register group chat.
-        wrapper = ChatConfigWrapper(SERVICE_CODE, helper.chat_id)
+        wrapper = helper.chat_config_wrapper()
         # set module.
         model = await wrapper.get_model()
         model.status = "ok"
@@ -75,9 +74,10 @@ async def _process_group_msg(helper: MessageHelepr, bot: Bot):
     if helper.is_text():
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
-    # print(await helper.is_group_admin())
-    # print(message)
-    # check message rule.
+
+    # check file is ok.
+    
+
     # write into msg buffer.
     wrapper = await helper.chat_message_wrapper()
     await wrapper.append(helper.message_model)
