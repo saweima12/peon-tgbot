@@ -1,3 +1,4 @@
+from typing import List
 from saweibot.core.wrapper import BaseModelWrapper
 from saweibot.storages.redis import RedisCircularBuffer
 
@@ -13,12 +14,20 @@ class ChatMessageWrapper(BaseModelWrapper[RedisCircularBuffer]):
         super().__init__()
 
     def _proxy(self):
-        return self.factory(self.bot_id).get_circular_buffer(self.size, self.chat_id)
+        return self.factory(self.bot_id).get_circular_buffer(self.size, self.chat_id, "msgbuf")
 
-    async def list(self):
+    async def list(self) -> List[ChatMessageModel]:
         if not self._buffer:
-            self._buffer = await self.proxy.list()
+            _buffer = await self.proxy.list()
+            self._buffer = [ ChatMessageModel.parse_raw(item) for item in _buffer]
         return self._buffer
+
+    async def last(self):
+        item = await self.proxy.last()
+        return ChatMessageModel.parse_raw(item)
 
     async def append(self, data: ChatMessageModel):
         await self.proxy.append(data.dict())
+
+    async def will_overflow(self):
+        return (await self.proxy.length()) >= self.size

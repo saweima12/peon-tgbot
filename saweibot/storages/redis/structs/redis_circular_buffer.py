@@ -20,3 +20,9 @@ class RedisCircularBuffer(RedisObjectBase):
 
     async def list(self) -> List[Any]:
         return await self.redis.lrange(self.namespace, 0, self.size - 1)
+
+    async def last(self) -> Any:
+        return await self.redis.lindex(self.namespace, self.size - 1)
+
+    async def first(self) -> Any:
+        return await self.redis.lindex(self.namespace, 0)

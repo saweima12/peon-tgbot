@@ -1,11 +1,13 @@
 from re import L
 from aiogram.types import Message, ChatType, ContentTypes
 
+
 from .data.base import Status
 from .data.models import ChatMessageModel
 from .data.wrappers.chat_config import ChatConfigWrapper
 from .data.wrappers.chat_message import ChatMessageWrapper
 from .data.wrappers.user_whitelist import UserWhitelistWrapper
+from .data.wrappers.deleted_message import DeletedMessageWrapper
 
 class MessageHelepr():
     
@@ -40,6 +42,14 @@ class MessageHelepr():
         return self.msg.to_python().get(self.content_type)
 
     @property
+    def reply_msg(self):
+        return self.msg.reply_to_message
+
+    @property
+    def bot(self):
+        return self.msg.bot
+
+    @property
     def message_model(self):
         return ChatMessageModel(message_id=self.message_id, 
                                 content_type=self.content_type,
@@ -47,11 +57,6 @@ class MessageHelepr():
                                 is_bot=self.is_bot(),
                                 chat_id=self.chat_id, 
                                 content=self.content)
-
-    @property
-    def reply_msg(self):
-        return self.msg.reply_to_message
-
 
     """
     Match
@@ -66,7 +71,7 @@ class MessageHelepr():
 
     def is_private_chat(self):
         return self.chat.type == ChatType.PRIVATE
-       
+    
     def is_text(self):
         return self.content_type == "text"
 
@@ -97,7 +102,9 @@ class MessageHelepr():
     def user_list_wrapper(self):
         return UserWhitelistWrapper(self.bot_id)
 
+    def deleted_message_wrapper(self):
+        return DeletedMessageWrapper(self.bot_id, self.chat_id)
+
     async def chat_message_wrapper(self):
         config = await self.chat_config_wrapper().get_model()
         return ChatMessageWrapper(self.bot_id, config.buffer_size, self.chat_id)
-

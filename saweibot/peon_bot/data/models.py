@@ -3,11 +3,9 @@ from typing import Any, Dict, List
 
 from .base import Status
 
-class WhitelistModel(OrjsonBaseModel):
-    whitelist_map: Dict[str, Status] = {}
 
-class BlacklistModel(OrjsonBaseModel):
-    blacklist_map: Dict[str, Status] = {}
+class StatusMapModel(OrjsonBaseModel):
+    _map: Dict[str, Status] = {}
 
 class BotConfigModel(OrjsonBaseModel):
     buffer_size: int = 50

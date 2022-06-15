@@ -30,7 +30,7 @@ async def setup(app: Sanic):
     async def on_start_command(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_start_command(message, bot)
+            await bussiness.process_start_command(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
@@ -39,7 +39,7 @@ async def setup(app: Sanic):
     async def on_stop_command(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_stop_command(message, bot)
+            await bussiness.process_stop_command(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
@@ -65,7 +65,7 @@ async def setup(app: Sanic):
     async def on_chat_message(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_chat_message(message, bot)
+            await bussiness.process_chat_message(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
