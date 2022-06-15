@@ -1,9 +1,9 @@
 from saweibot.core.entities import BotConfig
-from saweibot.core.wrapper import JsonModelWrapper
+from saweibot.core.wrapper import StorageJsonModelWrapper
 
 from ..models import BotConfigModel
 
-class BotConfigWrapper(JsonModelWrapper[BotConfigModel]):
+class BotConfigWrapper(StorageJsonModelWrapper[BotConfigModel]):
 
     __model__ = BotConfigModel
 

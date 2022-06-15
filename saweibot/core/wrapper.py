@@ -28,9 +28,7 @@ class BaseModelWrapper(Generic[PROXY_OBJECT], metaclass=ABCMeta):
     def _proxy(self): 
         raise NotImplementedError        
 
-
-
-class JsonModelWrapper(Generic[WRAPPED_MODEL], BaseModelWrapper[RedisJsonObject], metaclass=ABCMeta):
+class StorageJsonModelWrapper(Generic[WRAPPED_MODEL], BaseModelWrapper[RedisJsonObject], metaclass=ABCMeta):
     
     __model__ : WRAPPED_MODEL
 

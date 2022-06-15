@@ -1,9 +1,9 @@
-from saweibot.core.wrapper import JsonModelWrapper
+from saweibot.core.wrapper import StorageJsonModelWrapper
 
 from ..entities import PeonChatConfig
 from ..models import ChatConfigModel
 
-class ChatConfigWrapper(JsonModelWrapper[ChatConfigModel]):
+class ChatConfigWrapper(StorageJsonModelWrapper[ChatConfigModel]):
 
     __model__ = ChatConfigModel
 

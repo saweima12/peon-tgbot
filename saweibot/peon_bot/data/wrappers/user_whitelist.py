@@ -1,9 +1,9 @@
-from saweibot.core.wrapper import JsonModelWrapper
+from saweibot.core.wrapper import StorageJsonModelWrapper
 
 from ..entities import UserWhitelist
 from ..models import WhitelistModel
 
-class UserWhitelistWrapper(JsonModelWrapper[WhitelistModel]):
+class UserWhitelistWrapper(StorageJsonModelWrapper[WhitelistModel]):
 
     __model__ = WhitelistModel
 
