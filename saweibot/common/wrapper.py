@@ -1,10 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from typing import final
+from typing import TypeVar, Type, Generic, final
 from pydantic import BaseModel
-from saweibot.storages.redis import RedisObjFactory, RedisObjectBase
-from typing import TypeVar, Type, Generic
 
-from saweibot.storages.redis.structs.redis_json import RedisJsonObject
+from .redis import RedisObjFactory, RedisObjectBase, RedisJsonObject
 
 WRAPPED_MODEL = TypeVar("WRAPPED_MODEL", bound=BaseModel)
 PROXY_OBJECT = TypeVar("PROXY_OBJECT", bound=RedisObjectBase)

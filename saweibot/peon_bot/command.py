@@ -1,6 +1,6 @@
 import asyncio
 from sanic.log import logger
-from saweibot.core import CommandMap
+from saweibot.common import CommandMap
 from saweibot.utils import parse_int
 
 from .helper import MessageHelepr

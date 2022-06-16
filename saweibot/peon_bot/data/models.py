@@ -1,4 +1,4 @@
-from saweibot.core.extension import OrjsonBaseModel
+from saweibot.common.extension import OrjsonBaseModel
 from typing import Any, Dict, List
 
 from .base import Status

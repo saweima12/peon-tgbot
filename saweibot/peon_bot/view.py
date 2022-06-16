@@ -1,4 +1,4 @@
-from sanic import HTTPResponse, Sanic, Request, Blueprint, response, text
+from sanic import HTTPResponse, Request, Blueprint, response, text
 from aiogram.types import Update
 
 from .bot import get_bot, get_dp

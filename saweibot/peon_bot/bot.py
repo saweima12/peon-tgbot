@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes, ChatType
 
 from . import bussiness
-from .data.meta import SERVICE_CODE
+from .meta import SERVICE_CODE
 
 DP_CODE = f"{SERVICE_CODE}_dp"
 

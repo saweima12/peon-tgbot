@@ -5,7 +5,7 @@ from sanic.log import logger
 
 from tortoise.contrib.sanic import register_tortoise
 
-from saweibot import config, storages, services, scheduler
+from saweibot import config, registerer
 
 # define sanic app
 app = Sanic(__name__)
@@ -17,15 +17,12 @@ if env_config_path and os.path.exists(env_config_path):
     app.update_config(env_config_path)
 
 orm_modules = {
-    "core_entities": ["saweibot.core.entities"]
+    "core_entities": ["saweibot.common.entities"]
 }
 
-# register scheduler.
-scheduler.register(app)
+# register services.
+registerer.setup(app, orm_modules)
 
-# register storages & services.
-storages.register(app)
-services.register(app, orm_modules)
 
 # register database orm.
 register_tortoise(app, 
@@ -33,10 +30,3 @@ register_tortoise(app,
     modules=orm_modules, 
     generate_schemas=True
 )
-
-
-
-async def test_task():
-    while True:
-        await asyncio.sleep(1)
-        print(app.name)

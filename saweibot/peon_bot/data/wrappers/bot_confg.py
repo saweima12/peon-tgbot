@@ -1,5 +1,5 @@
-from saweibot.core.entities import BotConfig
-from saweibot.core.wrapper import StorageJsonModelWrapper
+from saweibot.common.entities import BotConfig
+from saweibot.common.wrapper import StorageJsonModelWrapper
 
 from ..models import BotConfigModel
 

@@ -1,11 +1,10 @@
-from webbrowser import get
 from redis.asyncio import Redis
 
-from saweibot.storages.redis.structs.redis_hash import RedisHashMap
+from .structs.redis_hash import RedisHashMap
 from .structs.redis_json import RedisJsonObject
 from .structs.redis_circular_buffer import RedisCircularBuffer
 
-from .db import get_db
+from saweibot.services.redis import get_db
 
 class RedisObjFactory:
 

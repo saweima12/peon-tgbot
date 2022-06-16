@@ -1,6 +1,4 @@
-from re import L
-from aiogram.types import Message, ChatType, ContentTypes
-
+from aiogram.types import Message, ChatType
 
 from .data.base import Status
 from .data.models import ChatMessageModel

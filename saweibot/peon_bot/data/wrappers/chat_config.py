@@ -1,4 +1,4 @@
-from saweibot.core.wrapper import StorageJsonModelWrapper
+from saweibot.common.wrapper import StorageJsonModelWrapper
 
 from ..entities import PeonChatConfig
 from ..models import ChatConfigModel

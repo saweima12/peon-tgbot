@@ -1,8 +1,6 @@
-import orjson as json
-from redis.asyncio import Redis
+from typing import Any
 from .base import RedisObjectBase
 
-from typing import Any
 
 class RedisJsonObject(RedisObjectBase):
     

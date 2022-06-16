@@ -1,6 +1,6 @@
 from typing import List
-from saweibot.core.wrapper import BaseModelWrapper
-from saweibot.storages.redis import RedisHashMap
+from saweibot.common.wrapper import BaseModelWrapper
+from saweibot.common.redis import RedisHashMap
 
 from ..models import ChatMessageModel
 

@@ -1,9 +1,8 @@
 from sanic import Sanic
-
-from saweibot.core.entities import BotConfig
+from saweibot.common.entities import BotConfig
 
 from . import bot, view
-from .data import meta
+from . import meta
 from .data.models import BotConfigModel
 from .data.wrappers import BotConfigWrapper
 
@@ -17,7 +16,7 @@ def register_bot(app: Sanic, orm_modules: dict):
         # add to redis
         await BotConfigWrapper(meta.SERVICE_CODE).load()
 
-        # if it doesn't register, register it by default config.
+        # if it doesn't register to db, register it by default config.
         if not await BotConfig.exists(bot_id=meta.SERVICE_CODE):
             await BotConfig.create(
                 bot_id=meta.SERVICE_CODE, 

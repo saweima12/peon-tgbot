@@ -1,6 +1,5 @@
-from unicodedata import name
-from redis.asyncio import Redis
 from abc import ABCMeta
+from redis.asyncio import Redis
 
 class RedisObjectBase(metaclass=ABCMeta):
 

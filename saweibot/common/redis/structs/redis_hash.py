@@ -1,5 +1,3 @@
-import orjson as json
-from redis.asyncio import Redis
 from .base import RedisObjectBase
 
 from typing import Any, Mapping
