@@ -1,4 +1,5 @@
 import asyncio
+from sanic.log import logger
 from saweibot.core import CommandMap
 from saweibot.utils import parse_int
 
@@ -12,6 +13,7 @@ async def remove_msg_by_user(*params, helper: MessageHelepr):
     
     # must be reply a target.
     if not helper.reply_msg:
+        logger.debug("Must be reply a message.")
         return 
     # check user has permission.
     if not (await helper.is_group_admin()) and not (await helper.is_whitelist_user()):
@@ -26,6 +28,7 @@ async def remove_msg_by_user(*params, helper: MessageHelepr):
     msg_list = [ item for item in await chat_msg_wrapper.list() if item.user_id == reply_helper.user_id]
     deleted_keys = await deleted_wrapper.keys()
 
+    # Define Task
     async def delete_msg(msg):
         # check msg has been deleted?
         if msg.message_id in deleted_keys:
@@ -34,19 +37,19 @@ async def remove_msg_by_user(*params, helper: MessageHelepr):
         try:
             await deleted_wrapper.append(msg.message_id, msg.json())
             await helper.chat.delete_message(msg.message_id)
-            print("add list:", msg.message_id)
         except Exception as _e:
-            print(msg.message_id)
-            print(_e)
+            logger.error(_e)
 
-    tasks = []        
+    _range = 10
+    freq = len(msg_list) // _range
+    
+    for num in range(0, freq + 1):
+        #  get slice range
+        tasks = []
+        start = num * _range
+        end = (num + 1) * _range
+        # batch process delete.
+        for msg in msg_list[start:end]:
+            tasks.append(delete_msg(msg))
 
-    for msg in msg_list:
-        tasks.append(delete_msg(msg))
-
-        if len(tasks) >= 10:
-            await asyncio.gather(*tasks)
-            tasks = []
-            await asyncio.sleep(1.0)
-    print("weeed")
-    await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks)

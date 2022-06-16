@@ -1,9 +1,11 @@
 import os
-from sanic import Sanic, Request, json, text
+import asyncio
+from sanic import Sanic
 from sanic.log import logger
+
 from tortoise.contrib.sanic import register_tortoise
 
-from saweibot import config, storages, services
+from saweibot import config, storages, services, scheduler
 
 # define sanic app
 app = Sanic(__name__)
@@ -18,10 +20,11 @@ orm_modules = {
     "core_entities": ["saweibot.core.entities"]
 }
 
-# register storages.
-storages.register(app)
+# register scheduler.
+scheduler.register(app)
 
-# register services.
+# register storages & services.
+storages.register(app)
 services.register(app, orm_modules)
 
 # register database orm.
@@ -30,3 +33,10 @@ register_tortoise(app,
     modules=orm_modules, 
     generate_schemas=True
 )
+
+
+
+async def test_task():
+    while True:
+        await asyncio.sleep(1)
+        print(app.name)

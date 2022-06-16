@@ -90,10 +90,10 @@ async def _process_group_msg(helper: MessageHelepr):
 
     # check file is ok.
     deleted_wrapper = helper.deleted_message_wrapper()
-    msg_wrapper = await helper.chat_message_wrapper()
+    message_wrapper = await helper.chat_message_wrapper()
     # check will overflow.
-    if await msg_wrapper.will_overflow():
-        last = await msg_wrapper.last()
+    if await message_wrapper.will_overflow():
+        last = await message_wrapper.last()
         # if overflow, check deleted_list.
         if await deleted_wrapper.exists(last.message_id):
             await deleted_wrapper.delete(last.message_id)
@@ -101,7 +101,7 @@ async def _process_group_msg(helper: MessageHelepr):
 
 
     # write into msg buffer.
-    await msg_wrapper.append(helper.message_model)
+    await message_wrapper.append(helper.message_model)
 
 
 async def _process_private_msg(helper: MessageHelepr):
