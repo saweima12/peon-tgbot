@@ -5,7 +5,7 @@ from .struct import AppScheduler
 SERVICE_CODE = "app_scheduler"
 
 
-def get_scheduler() -> AppScheduler:
+def get() -> AppScheduler:
     app = Sanic.get_app()
     return getattr(app.ctx, SERVICE_CODE)
 

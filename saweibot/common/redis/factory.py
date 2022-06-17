@@ -4,13 +4,13 @@ from .structs.redis_hash import RedisHashMap
 from .structs.redis_json import RedisJsonObject
 from .structs.redis_circular_buffer import RedisCircularBuffer
 
-from saweibot.services.redis import get_db
+from saweibot.services import redis
 
 class RedisObjFactory:
 
     def __init__(self, conn: Redis=None, prefix: str=None):
         # get default redis connection.
-        self.conn = conn if conn else get_db()
+        self.conn = conn if conn else redis.get()
         self.prefix = prefix
 
     def get_json_obj(self, *args) -> RedisJsonObject:

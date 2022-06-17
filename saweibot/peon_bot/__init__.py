@@ -1,30 +1,22 @@
 from sanic import Sanic
 from saweibot.common.entities import BotConfig
-from saweibot.services.scheduler import get_scheduler
+from saweibot.services import scheduler
 from datetime import datetime, timedelta
 
 from . import bot, view
-from . import meta
+from .data import meta
 from .data.models import BotConfigModel
 from .data.wrappers import BotConfigWrapper
 
 def register_bot(app: Sanic, orm_modules: dict):
 
-
-    _scheduler = get_scheduler()
-
-    @_scheduler.register_task(name="test", period=timedelta(seconds=1))
-    def test_task():
-        print("test23")
-
-
-
-
+    # setup bot
+    instance = bot.setup(app)
+    
     @app.after_server_start
     async def setup(app, loop):
-        # setup bot
-        await bot.setup(app)
-        
+        # register webhook.
+        await bot.set_webhook(app, instance)
         # add to redis
         await BotConfigWrapper(meta.SERVICE_CODE).load()
 
@@ -45,6 +37,11 @@ def register_bot(app: Sanic, orm_modules: dict):
     orm_modules["peon_entitles"] = ["saweibot.peon_bot.data.entities"]
 
     # register task
+    _scheduler = scheduler.get()
+
+    @_scheduler.register_task(name="test", period=timedelta(seconds=1))
+    def test_task():
+        print("test23")
 
 
 

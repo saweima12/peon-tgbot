@@ -4,11 +4,11 @@ from redis.asyncio import Redis
 
 SERVICE_CODE = "redis"
 
-def get_db() -> Redis:
+def get() -> Redis:
     app = Sanic.get_app()
     return getattr(app.ctx, SERVICE_CODE)
 
-async def setup(app: Sanic):
+def setup(app: Sanic):
     # get configuration from app.config
     redis_uri = app.config["REDIS_URI"]
     _redis = Redis.from_url(redis_uri)

@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes, ChatType
 
 from . import bussiness
-from .meta import SERVICE_CODE
+from .data.meta import SERVICE_CODE
 
 DP_CODE = f"{SERVICE_CODE}_dp"
 
@@ -21,7 +21,7 @@ def get_dp() -> Dispatcher:
     app = Sanic.get_app()
     return getattr(app.ctx, DP_CODE)
 
-async def setup(app: Sanic):
+def setup(app: Sanic) -> Bot:
     bot = Bot(token=app.config.TGBOT_PEON_TOKEN)
     dp = Dispatcher(bot)
     
@@ -69,16 +69,19 @@ async def setup(app: Sanic):
         except Exception as _e:
             logger.error(traceback.format_exc())
 
-    # register webhook uri.
-    hook_route = os.path.join("/peon", app.config.TGBOT_PEON_TOKEN)
-    webhook_uri = urljoin(app.config['DOMAIN_URL'], hook_route)
-    await bot.set_webhook(webhook_uri)
-
     # Attach to ctx
     setattr(app.ctx, SERVICE_CODE, bot)
     setattr(app.ctx, DP_CODE, dp)
     logger.info(f"Register bot: {SERVICE_CODE}")
     logger.info(f"Register Dispatcher: {DP_CODE}")
+    return bot
+
+async def set_webhook(app: Sanic, bot: Bot):
+    # register webhook uri.
+    hook_route = os.path.join("/peon", app.config.TGBOT_PEON_TOKEN)
+    webhook_uri = urljoin(app.config['DOMAIN_URL'], hook_route)
+    await bot.set_webhook(webhook_uri)
+
 
 async def dispose(app: Sanic):
     if hasattr(app.ctx, SERVICE_CODE):

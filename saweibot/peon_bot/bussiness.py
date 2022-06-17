@@ -3,7 +3,7 @@ from sanic.log import logger
 from aiogram import Bot
 from aiogram.types import Message
 
-from .meta import SERVICE_CODE
+from .data.meta import SERVICE_CODE
 from .data.wrappers.deleted_message import DeletedMessageWrapper
 from .helper import MessageHelepr
 from .command import map as command_map
