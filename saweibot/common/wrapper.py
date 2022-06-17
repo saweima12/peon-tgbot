@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import TypeVar, Type, Generic, final
+from typing import TypeVar, Generic, final
 from pydantic import BaseModel
 
 from .redis import RedisObjFactory, RedisObjectBase, RedisJsonObject

@@ -42,7 +42,6 @@ class AppScheduleTask:
             return 
 
         while self.__next_start_time <= now:
-            print("test")
             self.__next_start_time += self.period
 
         return int((self.__next_start_time - now).total_seconds())
@@ -54,13 +53,13 @@ class AppScheduleTask:
             if delta:
                 await asyncio.sleep(delta)
 
-            logger.info(f"RUN TASK %s".format(self.name))
+            logger.info(f"RUN TASK - {self.name}")
             try:
                 ret = self.callback
                 if inspect.isawaitable(ret):
                     await ret
 
-                # logger.info(f"TASK {self.name} RUN")
+                logger.info(f"END TASK - {self.name}")
                 # execute task
                 if delta is None:
                     break
