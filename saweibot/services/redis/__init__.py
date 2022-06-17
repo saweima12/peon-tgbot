@@ -1,5 +1,7 @@
 from sanic import Sanic
+from redis.asyncio import Redis
 
+# export function.
 from . import db
 from .db import get_db
 

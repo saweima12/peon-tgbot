@@ -60,7 +60,6 @@ async def process_stop_command(message: Message):
     await message.reply(f"Set bot inactive on {helper.chat_id} group.")
 
 
-        
 async def process_join_chat(message: Message):
     logger.info("on join:", message.as_json())
 
