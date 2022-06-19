@@ -35,7 +35,7 @@ async def remove_msg_by_user(*params, helper: MessageHelepr):
             return
         # try to delete message.
         try:
-            await deleted_wrapper.append(msg.message_id, msg.json())
+            await deleted_wrapper.append(msg.message_id, msg)
             await helper.chat.delete_message(msg.message_id)
         except Exception as _e:
             logger.error(_e)

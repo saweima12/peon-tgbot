@@ -17,10 +17,6 @@ async def me(request: Request) -> HTTPResponse:
 
     return text(me.as_json())
 
-@bp.get("/test")
-async def test(request: Request) -> HTTPResponse:
-    return text('')
-
 
 @bp.post("/<token:str>")
 async def peon(request: Request, token: str) -> HTTPResponse:
