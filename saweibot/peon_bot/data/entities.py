@@ -6,9 +6,10 @@ from tortoise.models import Model
 class PeonChatConfig(Model):
     
     chat_id = fields.CharField(max_length=40, index=True)
+    status = fields.CharField(max_length=8, index=True)
     config_json = fields.JSONField()
-    permission_json = fields.JSONField()
-    attach_json = fields.JSONField()
+    permission_json = fields.JSONField(default={})
+    attach_json = fields.JSONField(default={})
 
     class Meta:
         table = "peon_chat_config"
@@ -32,11 +33,19 @@ class UrlBlackList(Model):
         table = "peon_url_blacklist"
 
 
-class BehaviorRecord(Model):
+class ChatWatchUser(Model):
+    chat_id = fields.CharField(max_length=40, index=True)
+    user_id = fields.CharField(max_length=40, index=True)
+    attach_json = fields.JSONField()
+
+    class Meta:
+        table = "peon_watch_user"
+
+class ChatBehaviorRecord(Model):
 
     chat_id = fields.CharField(max_length=40, index=True)
-    user_id = fields.BigIntField(index=True)
-    counter = fields.IntField()
+    user_id = fields.CharField(max_length=40, index=True)
+    msg_count = fields.IntField()
 
     class Meta:
         table = "peon_behavior_record"

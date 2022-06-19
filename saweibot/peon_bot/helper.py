@@ -1,5 +1,8 @@
 from aiogram.types import Message, ChatType
 
+from saweibot.peon_bot.data.wrappers.behavior_record import BehaviorRecordWrapper
+from saweibot.peon_bot.data.wrappers.watch_user import ChatWatcherUserWrapper
+
 from .data.base import Status
 from .data.models import ChatMessageModel
 from .data.wrappers.chat_config import ChatConfigWrapper
@@ -82,12 +85,21 @@ class MessageHelepr():
     async def is_whitelist_user(self) -> bool:
         wrapper = UserWhitelistWrapper(self.bot_id)
         _model = await wrapper.get_model()
-        return _model.whitelist_map.get(self.user_id) == Status.OK
+        return _model.status_map.get(self.user_id) == Status.OK
 
     async def is_group_registered(self):
         wrapper = self.chat_config_wrapper()
         if await wrapper.proxy.exists():
             return await wrapper.proxy.get(".status") == Status.OK
+        return False
+
+    async def is_senior_member(self):
+        behavior_wrapper = self.behavior_wrapper()
+        chat_wrapper = self.chat_config_wrapper()
+        behavior_count = await behavior_wrapper.get(self.user_id)
+        chat_config = await chat_wrapper.get_model()
+        # return behavior_count > chat_config.senior_count
+        print(behavior_count, chat_config)
         return False
 
     """
@@ -102,6 +114,12 @@ class MessageHelepr():
 
     def deleted_message_wrapper(self):
         return DeletedMessageWrapper(self.bot_id, self.chat_id)
+
+    def behavior_wrapper(self):
+        return BehaviorRecordWrapper(self.bot_id, self.chat_id)
+
+    def watcher_wrapper(self):
+        return ChatWatcherUserWrapper(self.bot_id, self.chat_id)
 
     async def chat_message_wrapper(self):
         config = await self.chat_config_wrapper().get_model()

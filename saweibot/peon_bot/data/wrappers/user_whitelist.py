@@ -21,10 +21,10 @@ class UserWhitelistWrapper(StorageJsonModelWrapper[StatusMapModel]):
         return None
 
     async def _from_db(self):
-        result = await UserWhitelist.filter(status="True")
+        result = await UserWhitelist.filter(status="ok")
         if result:
-            whitelist_map = { item.chat_id: item.status for item in result}
-            return StatusMapModel(_map=whitelist_map)
+            whitelist_map = { item.user_id: item.status for item in result}
+            return StatusMapModel(status_map=whitelist_map)
         return None
 
     async def _save_proxy(self, data: StatusMapModel=None, **kwargs):

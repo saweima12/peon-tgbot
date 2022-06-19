@@ -24,7 +24,7 @@ class DeletedMessageWrapper(BaseModelWrapper[RedisHashMap]):
         return [item.decode() for item in await self.proxy.keys()]
 
     async def append(self, msg_id: str, data: ChatMessageModel):
-        return await self.proxy.set_key(msg_id, data)
+        return await self.proxy.set_key(msg_id, data.json())
 
     async def delete(self, msg_id: str):
         return await self.proxy.delete_key(msg_id)
