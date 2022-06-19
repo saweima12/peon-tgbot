@@ -10,5 +10,11 @@ class RedisJsonObject(RedisObjectBase):
     async def get(self, path="."):
         return await self.redis.json().get(self.namespace, path)
 
+    async def exists(self, path="."):
+        return (await self.type(path)) != None
+
+    async def type(self, path="."):
+        return await self.redis.json().type(self.namespace, path)
+
     async def arrindex(self, value, path=".", **kwargs):
         return await self.redis.json().arrindex(self.namespace, path, value, **kwargs)

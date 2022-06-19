@@ -7,8 +7,8 @@ class RedisHashMap(RedisObjectBase):
     async def get(self, key: str):
         return await self.redis.hget(self.namespace, key)
 
-    async def getall(self, key:str):
-        return await self.redis.hgetall(key)
+    async def getall(self):
+        return await self.redis.hgetall(self.namespace)
 
     async def set_key(self, key: str, value: Any, mapping: Mapping=None):
         return await self.redis.hset(self.namespace, key, value)
