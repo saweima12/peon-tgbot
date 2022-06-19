@@ -1,7 +1,7 @@
+from datetime import datetime, timedelta
 from sanic import Sanic
 from saweibot.common.entities import BotConfig
 from saweibot.services import scheduler
-from datetime import datetime, timedelta
 
 from . import bot, view
 from .data import meta
@@ -39,11 +39,9 @@ def register_bot(app: Sanic, orm_modules: dict):
     # register task
     _scheduler = scheduler.get()
 
-    @_scheduler.register_task(name="test", period=timedelta(seconds=1))
-    def test_task():
-        print("test23")
-
-
+    # @_scheduler.register_task(name="test", period=timedelta(seconds=1))
+    # def test_task():
+    #     print("test23")
 
     # register route
     app.blueprint(view.bp)

@@ -43,6 +43,15 @@ def setup(app: Sanic) -> Bot:
         except Exception as _e:
             logger.error(traceback.format_exc())
 
+    # handle start command
+    @dp.message_handler(commands=['test'])
+    async def on_test_command(message: Message):
+        Bot.set_current(bot)
+        try:
+            await bussiness.process_join_chat(message)
+        except Exception as _e:
+            logger.error(traceback.format_exc())
+
 
     # handle start command
     @dp.message_handler(commands=['about'])
@@ -58,7 +67,10 @@ def setup(app: Sanic) -> Bot:
     @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
     async def on_join_chat(message: Message):
         Bot.set_current(bot)
-        print(message)
+        try:
+            await bussiness.process_join_chat(message)
+        except Exception as _e:
+            logger.error(traceback.format_exc())
 
     # handle chat message, include sticker, animation, video, voice, text.
     @dp.message_handler(content_types=ContentTypes.ANY)
