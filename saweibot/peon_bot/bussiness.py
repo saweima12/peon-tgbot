@@ -8,6 +8,7 @@ from saweibot.peon_bot.data.entities import PeonChatConfig
 from .data.meta import SERVICE_CODE
 from .data.wrappers.deleted_message import DeletedMessageWrapper
 from .helper import MessageHelepr
+
 from .command import map as command_map
 
 async def process_start_command(message: Message):
@@ -34,7 +35,6 @@ async def process_start_command(message: Message):
     config.status = "ok"
     # add to redis.
     await wrapper.save_proxy(config)
-
 
     # write to database
     _default = {'status': 'ok', 'config_json': config.dict()}
@@ -73,19 +73,16 @@ async def process_stop_command(message: Message):
 
 async def process_join_chat(message: Message):
     # logger.info("on join:", message.as_json())
-    print(message)
     helper = MessageHelepr(SERVICE_CODE, message)
-    print(message.chat.type)
-    # if not await helper.is_senior_member():
-    #     return
+    
+    if await helper.is_senior_member():
+        return
 
     #  add restrict
     chat = helper.chat
-    await chat.restrict(helper.user_id, 
-                    can_send_messages=True,
-                    can_send_media_messages=False,
-                    can_send_other_messages=False,
-                    can_add_web_page_previews=False)
+    await chat.restrict(helper.user_id, ChatPermissions(can_send_messages=True, 
+                                                        can_send_media_messages=False,
+                                                        can_send_other_messages=False))
     # write into watch list.
     wrapper = helper.watcher_wrapper()
     model = await wrapper.get(helper.user_id)
@@ -114,7 +111,6 @@ async def _process_group_msg(helper: MessageHelepr):
     if helper.is_text():
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
-            return
 
     # check file is ok.
     deleted_wrapper = helper.deleted_message_wrapper()
@@ -133,11 +129,12 @@ async def _process_group_msg(helper: MessageHelepr):
     if not helper.is_text():
         return 
 
+    print("test run")
     # increase message counter
     behavior_wrapper = helper.behavior_wrapper()
     count = await behavior_wrapper.get(helper.user_id)  
     await behavior_wrapper.set(helper.user_id, count + 1)
-    await behavior_wrapper.save_all_db()
+    # await behavior_wrapper.save_all_db()
 
 async def _process_private_msg(helper: MessageHelepr):
     pass

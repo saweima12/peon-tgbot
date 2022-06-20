@@ -11,6 +11,7 @@ class CommandMap:
         return self.__handlers
 
     def register_command_handler(self, command: str, callback: Any):
+        print("register")
         self.__handlers[command] = callback
 
     def register_command(self, command: str):

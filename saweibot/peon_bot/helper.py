@@ -99,7 +99,8 @@ class MessageHelepr():
         behavior_count = await behavior_wrapper.get(self.user_id)
         chat_config = await chat_wrapper.get_model()
         # return behavior_count > chat_config.senior_count
-        print(behavior_count, chat_config)
+        if behavior_count >= chat_config.senior_count:
+            return True
         return False
 
     """

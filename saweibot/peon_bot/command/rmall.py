@@ -1,14 +1,9 @@
 import asyncio
 from sanic.log import logger
 from saweibot.common import CommandMap
-from saweibot.utils import parse_int
 
-from .helper import MessageHelepr
+from ..helper import MessageHelepr
 
-
-map = CommandMap(prefix='$')
-
-@map.register_command('rmall')
 async def remove_msg_by_user(*params, helper: MessageHelepr):
     
     # must be reply a target.
