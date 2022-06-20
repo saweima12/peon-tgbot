@@ -6,8 +6,8 @@ from aiogram.types import Message, ChatPermissions
 from saweibot.data.entities import PeonChatConfig
 
 from saweibot.meta import SERVICE_CODE
-from saweibot.command import map as command_map
 
+from .command import map as command_map
 from .helper import MessageHelepr
 
 

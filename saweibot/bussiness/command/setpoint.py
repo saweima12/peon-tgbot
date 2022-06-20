@@ -1,7 +1,7 @@
 import re
 from saweibot.utils.type_helper import parse_int
 
-from saweibot.bussiness.helper import MessageHelepr
+from ..helper import MessageHelepr
 
 async def set_reocrd_point(*params, helper: MessageHelepr):
 
