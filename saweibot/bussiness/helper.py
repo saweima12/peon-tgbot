@@ -1,14 +1,14 @@
 from aiogram.types import Message, ChatType
 
-from saweibot.peon_bot.data.wrappers.behavior_record import BehaviorRecordWrapper
-from saweibot.peon_bot.data.wrappers.watch_user import ChatWatcherUserWrapper
+from saweibot.data.wrappers.behavior_record import BehaviorRecordWrapper
+from saweibot.data.wrappers.watch_user import ChatWatcherUserWrapper
 
-from .data.base import Status
-from .data.models import ChatMessageModel
-from .data.wrappers.chat_config import ChatConfigWrapper
-from .data.wrappers.chat_message import ChatMessageWrapper
-from .data.wrappers.user_whitelist import UserWhitelistWrapper
-from .data.wrappers.deleted_message import DeletedMessageWrapper
+from saweibot.data.base import Status
+from saweibot.data.models import ChatMessageModel
+from saweibot.data.wrappers.chat_config import ChatConfigWrapper
+from saweibot.data.wrappers.chat_message import ChatMessageWrapper
+from saweibot.data.wrappers.user_whitelist import UserWhitelistWrapper
+from saweibot.data.wrappers.deleted_message import DeletedMessageWrapper
 
 class MessageHelepr():
     
@@ -66,9 +66,8 @@ class MessageHelepr():
     def is_bot(self):
         return self.user.is_bot
 
-    def is_group(self) -> bool:
-        return self.chat.type == ChatType.GROUP or \
-            self.chat.type == ChatType.SUPERGROUP
+    def is_super_group(self) -> bool:
+        return self.chat.type == ChatType.SUPERGROUP
 
     def is_private_chat(self):
         return self.chat.type == ChatType.PRIVATE
@@ -96,10 +95,10 @@ class MessageHelepr():
     async def is_senior_member(self):
         behavior_wrapper = self.behavior_wrapper()
         chat_wrapper = self.chat_config_wrapper()
-        behavior_count = await behavior_wrapper.get(self.user_id)
+        record = await behavior_wrapper.get(self.user_id)
         chat_config = await chat_wrapper.get_model()
         # return behavior_count > chat_config.senior_count
-        if behavior_count >= chat_config.senior_count:
+        if record.msg_count >= chat_config.senior_count:
             return True
         return False
 

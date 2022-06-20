@@ -7,6 +7,7 @@ class PeonChatConfig(Model):
     
     chat_id = fields.CharField(max_length=40, index=True)
     status = fields.CharField(max_length=8, index=True)
+    chat_name = fields.TextField()
     config_json = fields.JSONField()
     permission_json = fields.JSONField(default={})
     attach_json = fields.JSONField(default={})
@@ -36,6 +37,7 @@ class UrlBlackList(Model):
 class ChatWatchUser(Model):
     chat_id = fields.CharField(max_length=40, index=True)
     user_id = fields.CharField(max_length=40, index=True)
+    status = fields.CharField(max_length=8)
     attach_json = fields.JSONField()
 
     class Meta:
@@ -45,6 +47,7 @@ class ChatBehaviorRecord(Model):
 
     chat_id = fields.CharField(max_length=40, index=True)
     user_id = fields.CharField(max_length=40, index=True)
+    full_name = fields.TextField()
     msg_count = fields.IntField()
 
     class Meta:

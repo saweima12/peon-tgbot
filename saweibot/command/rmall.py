@@ -2,7 +2,7 @@ import asyncio
 from sanic.log import logger
 from saweibot.common import CommandMap
 
-from ..helper import MessageHelepr
+from saweibot.bussiness.helper import MessageHelepr
 
 async def remove_msg_by_user(*params, helper: MessageHelepr):
     

@@ -1,8 +1,8 @@
 from saweibot.common import CommandMap
-from saweibot.peon_bot.command.setpoint import set_reocrd_point
 
 from .rmall import remove_msg_by_user
 from .addpoint import add_record_point
+from .setpoint import set_reocrd_point
 
 map = CommandMap(prefix='$')
 

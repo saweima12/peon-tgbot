@@ -1,6 +1,5 @@
 from typing import List
 
-import orjson
 from saweibot.common.wrapper import BaseModelWrapper
 from saweibot.common.redis import RedisHashMap
 

@@ -8,8 +8,8 @@ from sanic.log import logger
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes, ChatType
 
-from . import bussiness
-from .data.meta import SERVICE_CODE
+from saweibot.bussiness import bll
+from .meta import SERVICE_CODE
 
 DP_CODE = f"{SERVICE_CODE}_dp"
 
@@ -30,7 +30,7 @@ def setup(app: Sanic) -> Bot:
     async def on_start_command(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_start_command(message)
+            await bll.process_start_command(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
@@ -39,7 +39,7 @@ def setup(app: Sanic) -> Bot:
     async def on_stop_command(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_stop_command(message)
+            await bll.process_stop_command(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
@@ -48,7 +48,7 @@ def setup(app: Sanic) -> Bot:
     async def on_test_command(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_join_chat(message)
+            await bll.process_join_chat(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
@@ -68,7 +68,7 @@ def setup(app: Sanic) -> Bot:
     async def on_join_chat(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_join_chat(message)
+            await bll.process_join_chat(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 
@@ -77,7 +77,7 @@ def setup(app: Sanic) -> Bot:
     async def on_chat_message(message: Message):
         Bot.set_current(bot)
         try:
-            await bussiness.process_chat_message(message)
+            await bll.process_chat_message(message)
         except Exception as _e:
             logger.error(traceback.format_exc())
 

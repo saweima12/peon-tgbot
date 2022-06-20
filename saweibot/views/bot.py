@@ -1,7 +1,7 @@
 from sanic import HTTPResponse, Request, Blueprint, response, text
 from aiogram.types import Update
 
-from .bot import get_bot, get_dp
+from ..bot import get_bot, get_dp
 
 bp = Blueprint("peon_bot", url_prefix="/peon")
 

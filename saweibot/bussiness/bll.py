@@ -3,19 +3,19 @@ from sanic.log import logger
 from aiogram import Bot
 from aiogram.types import Message, ChatPermissions
 
-from saweibot.peon_bot.data.entities import PeonChatConfig
+from saweibot.data.entities import PeonChatConfig
 
-from .data.meta import SERVICE_CODE
-from .data.wrappers.deleted_message import DeletedMessageWrapper
+from saweibot.meta import SERVICE_CODE
+from saweibot.command import map as command_map
+
 from .helper import MessageHelepr
 
-from .command import map as command_map
 
 async def process_start_command(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
 
     # must be group.
-    if not helper.is_group():
+    if not helper.is_super_group():
         return
 
     is_group_registered = await helper.is_group_registered()
@@ -37,7 +37,11 @@ async def process_start_command(message: Message):
     await wrapper.save_proxy(config)
 
     # write to database
-    _default = {'status': 'ok', 'config_json': config.dict()}
+    _default = {
+        'status': 'ok',
+        'chat_name': helper.chat.full_name,
+        'config_json': config.dict()
+    }
     await PeonChatConfig.update_or_create(_default,
                                         chat_id=helper.chat_id)
     await message.reply(f"Set bot active on {helper.chat.full_name} group.")
@@ -47,7 +51,7 @@ async def process_start_command(message: Message):
 async def process_stop_command(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
 
-    if not helper.is_group():
+    if not helper.is_super_group():
         return
 
     # set config to disable
@@ -89,12 +93,10 @@ async def process_join_chat(message: Message):
     model.full_name = helper.user.full_name
     await wrapper.set(helper.user_id, model)
 
-
-
 async def process_chat_message(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
     
-    if helper.is_group():
+    if helper.is_super_group():
         await _process_group_msg(helper)
 
     elif helper.is_private_chat():
@@ -129,12 +131,12 @@ async def _process_group_msg(helper: MessageHelepr):
     if not helper.is_text():
         return 
 
-    print("test run")
     # increase message counter
     behavior_wrapper = helper.behavior_wrapper()
-    count = await behavior_wrapper.get(helper.user_id)  
-    await behavior_wrapper.set(helper.user_id, count + 1)
-    # await behavior_wrapper.save_all_db()
+    _model = await behavior_wrapper.get(helper.user_id)
+    _model.full_name = helper.user.full_name
+    _model.msg_count += 1
+    await behavior_wrapper.set(helper.user_id, _model)
 
 async def _process_private_msg(helper: MessageHelepr):
     pass
