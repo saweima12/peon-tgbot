@@ -28,7 +28,9 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
         #  set point
         target_id = helper.reply_msg.from_user.id
         wrapper = helper.behavior_wrapper()
-        await wrapper.set(target_id, _num)
+        _model = await wrapper.get(target_id)
+        _model.msg_count = _num
+        await wrapper.set(target_id, _model)
 
     elif params_count >= 2:
         # has three above parameter. multiple mode.
