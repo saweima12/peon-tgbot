@@ -1,4 +1,5 @@
 import re
+from saweibot.text import ADD_POINT, NEED_REPLY_MESSAGE
 from saweibot.utils.type_helper import parse_int
 
 from ..helper import MessageHelepr
@@ -25,7 +26,7 @@ async def add_record_point(*params, helper: MessageHelepr):
             return
 
         if not helper.reply_msg:
-            await helper.msg.reply("Must be reply a message.")
+            await helper.msg.reply(NEED_REPLY_MESSAGE)
             return 
 
         #  add point
@@ -34,7 +35,9 @@ async def add_record_point(*params, helper: MessageHelepr):
         _model = await wrapper.get(target_id)
         _model.msg_count += _num
         await wrapper.set(target_id, _model)
-
+        await helper.msg.reply(ADD_POINT.format(user=helper.reply_msg.from_user.full_name,
+                                                point=_model.msg_count))
+    
     elif params_count >= 2:
         # has three above parameter. multiple mode.
         users = params[1:]

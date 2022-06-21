@@ -1,7 +1,9 @@
 import re
 from saweibot.utils.type_helper import parse_int
+from saweibot.text import NEED_REPLY_MESSAGE, SET_POINT
 
 from ..helper import MessageHelepr
+
 
 async def set_reocrd_point(*params, helper: MessageHelepr):
 
@@ -22,7 +24,7 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
             return
 
         if not helper.reply_msg:
-            await helper.msg.reply("Must be reply a message.")
+            await helper.msg.reply(NEED_REPLY_MESSAGE)
             return 
 
         #  set point
@@ -31,6 +33,8 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
         _model = await wrapper.get(target_id)
         _model.msg_count = _num
         await wrapper.set(target_id, _model)
+        await helper.msg.reply(SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
+                                                point=_model.msg_count))
 
     elif params_count >= 2:
         # has three above parameter. multiple mode.
