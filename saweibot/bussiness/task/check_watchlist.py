@@ -33,6 +33,7 @@ def register_task(scheduler: AppScheduler):
                 # update reids
                 logger.info(f"set {record.full_name} member permission")
                 watch_user.status = "ok" 
+                await watch_wrapper.set(row.user_id, watch_user)
                 await watch_wrapper.save_db(row.user_id, watch_user)
                 # udpate database
                 row.status = "ok"
