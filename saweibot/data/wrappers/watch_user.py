@@ -36,9 +36,9 @@ class ChatWatcherUserWrapper(BaseModelWrapper[RedisHashMap]):
 
 
     async def save_db(self, user_id: str, data: ChatWatchUserModel, **kwargs):
-        print(user_id, data)
         await ChatWatchUser.update_or_create({
-            "attach_json": data.dict()
+            'attach_json': data.dict(),
+            'status': data.status
         }, chat_id=self.chat_id, user_id=user_id)
 
     async def save_all_db(self):
@@ -46,6 +46,9 @@ class ChatWatcherUserWrapper(BaseModelWrapper[RedisHashMap]):
 
         for uid, attach in result.items():
             _uid = uid.decode()
+            _model = ChatWatchUserModel.parse_raw(attach)
+
             await ChatWatchUser.update_or_create({
-                'attach_json': attach
+                'attach_json': attach,
+                'status': _model.status
             }, chat_id=self.chat_id, user_id=_uid)

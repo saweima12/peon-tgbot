@@ -19,6 +19,7 @@ class ChatConfigModel(OrjsonBaseModel):
 class ChatWatchUserModel(OrjsonBaseModel):
     user_id: str
     full_name: str = ""
+    status: str = "ng"
 
 class ChatMessageModel(OrjsonBaseModel):
     message_id: str

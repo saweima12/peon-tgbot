@@ -74,7 +74,6 @@ async def process_stop_command(message: Message):
     await PeonChatConfig.update_or_create(defaults=_update, chat_id=helper.chat_id)
     await message.reply(f"Set bot inactive on {helper.chat.full_name} group.")
 
-
 async def process_join_chat(message: Message):
     # logger.info("on join:", message.as_json())
     helper = MessageHelepr(SERVICE_CODE, message)

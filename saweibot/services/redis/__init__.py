@@ -5,10 +5,12 @@ from redis.asyncio import Redis
 from . import db
 from .db import get
 
-def register(app: Sanic):
+def register(app: Sanic) -> Redis:
 
-    db.setup(app)
+    _redis = db.setup(app)
 
     @app.before_server_stop
     async def dispose(app: Sanic, _):
         await db.dispose(app)
+
+    return _redis

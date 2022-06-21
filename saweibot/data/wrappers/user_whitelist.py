@@ -31,7 +31,7 @@ class UserWhitelistWrapper(StorageJsonModelWrapper[StatusMapModel]):
         await self.proxy.set(data.dict())
 
     async def _save_db(self, data: StatusMapModel=None, **kwargs):
-        for user_id, status in data.whitelist_map.items():
+        for user_id, status in data.status_map.items():
             await UserWhitelist.update_or_create({
                 "status": status
             }, user_id=user_id)

@@ -7,13 +7,16 @@ from saweibot.data.models import BotConfigModel
 from saweibot.data.wrappers import BotConfigWrapper
 from saweibot.views import bot as bot_view
 
+from saweibot.bussiness.task import check_watchlist, proxy_to_db
+
+
 from .meta import SERVICE_CODE
 from . import bot
 
 def setup(app: Sanic, orm_modules: dict):
-    # register redis
-    redis.register(app)
-    scheduler.register(app)
+    # register service.
+    _redis = redis.register(app)
+    _scheduler = scheduler.register(app)
 
     # setup bot
     instance = bot.setup(app)
@@ -43,3 +46,7 @@ def setup(app: Sanic, orm_modules: dict):
 
     # register view route
     app.blueprint(bot_view.bp)
+
+    # register scheudle task.
+    check_watchlist.register_task(_scheduler)
+    proxy_to_db.register_task(_scheduler)

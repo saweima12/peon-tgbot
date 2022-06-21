@@ -55,7 +55,7 @@ class AppScheduleTask:
 
             logger.info(f"RUN TASK - {self.name}")
             try:
-                ret = self.callback
+                ret = self.callback()
                 if inspect.isawaitable(ret):
                     await ret
 
@@ -101,7 +101,7 @@ class AppScheduler:
                             start_time: Optional[time] = None,
                             utc: Optional[bool] = None):
         def wrapper(callback):
-            self.register_task_handler(name, callback, period, start_time)
+            self.register_task_handler(name, callback, period, start_time, utc)
             return callback
         return wrapper
 
