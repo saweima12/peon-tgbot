@@ -4,6 +4,7 @@ from aiogram import Bot
 from aiogram.types import Message, ChatPermissions
 
 from saweibot.data.entities import PeonChatConfig
+from saweibot.data.wrappers.watch_user import ChatWatcherUserWrapper
 
 from saweibot.meta import SERVICE_CODE
 
@@ -91,6 +92,7 @@ async def process_join_chat(message: Message):
     model = await wrapper.get(helper.user_id)
     model.full_name = helper.user.full_name
     await wrapper.set(helper.user_id, model)
+    await wrapper.save_db(helper.user_id, model)
     logger.info(f"New member join: {message.from_user.id} - {message.from_user.full_name}")
 
 async def process_chat_message(message: Message):
