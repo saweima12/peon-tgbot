@@ -53,13 +53,13 @@ class AppScheduleTask:
             if delta:
                 await asyncio.sleep(delta)
 
-            logger.info(f"RUN TASK - {self.name}")
+            logger.debug(f"RUN TASK - {self.name}")
             try:
                 ret = self.callback()
                 if inspect.isawaitable(ret):
                     await ret
 
-                logger.info(f"END TASK - {self.name}")
+                logger.debug(f"END TASK - {self.name}")
                 # execute task
                 if delta is None:
                     break

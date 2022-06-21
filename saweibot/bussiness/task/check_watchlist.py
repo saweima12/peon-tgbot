@@ -1,4 +1,8 @@
 from datetime import timedelta
+from sanic.log import logger
+from aiogram.types.chat_permissions import ChatPermissions
+
+from saweibot.bot import get_bot
 from saweibot.data.entities import ChatWatchUser
 from saweibot.data.wrappers import BehaviorRecordWrapper
 from saweibot.data.wrappers.chat_config import ChatConfigWrapper
@@ -13,6 +17,8 @@ def register_task(scheduler: AppScheduler):
     async def check_watchlist_task():
         # get all watch member.
         watch_users = await ChatWatchUser.filter(status="ng")
+
+        bot = get_bot()
         # traversal all watch user.
         for row in watch_users:
             behavior_wrapper = BehaviorRecordWrapper(SERVICE_CODE, row.chat_id)
@@ -25,10 +31,18 @@ def register_task(scheduler: AppScheduler):
 
             if record.msg_count >= config.senior_count:
                 # update reids
-                print("on update count", record.msg_count)
+                logger.info(f"set {record.full_name} member permission")
                 watch_user.status = "ok" 
                 await watch_wrapper.save_db(row.user_id, watch_user)
                 # udpate database
                 row.status = "ok"
                 row.attach_json = watch_user.dict()
                 await row.save()
+
+                await bot.restrict_chat_member(row.chat_id, row.user_id, ChatPermissions(
+                    can_send_messages=True,
+                    can_send_media_messages=True,
+                    can_send_other_messages=True
+                ))
+
+                

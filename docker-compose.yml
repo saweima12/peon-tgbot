@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  runtime:
+    container_name: "saweibot"
+    build: .
+    volumes:
+      - ./:/usr/src/myapp
+    ports:
+      - 8000:8000
+    environment:
+      - SAWEIBOT_CONFIG=/usr/src/myapp/env.py
+    command: "sanic saweibot:app -H 0.0.0.0"

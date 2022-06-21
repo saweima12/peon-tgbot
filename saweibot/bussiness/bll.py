@@ -91,6 +91,7 @@ async def process_join_chat(message: Message):
     model = await wrapper.get(helper.user_id)
     model.full_name = helper.user.full_name
     await wrapper.set(helper.user_id, model)
+    logger.info(f"New member join: {message.from_user.id} - {message.from_user.full_name}")
 
 async def process_chat_message(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
@@ -122,7 +123,7 @@ async def _process_group_msg(helper: MessageHelepr):
         # if overflow, check deleted_list.
         if await deleted_wrapper.exists(last.message_id):
             await deleted_wrapper.delete(last.message_id)
-            logger.info("delete expired message.")
+            logger.debug("delete expired message.")
 
     # write into msg buffer.
     await message_wrapper.append(helper.message_model)
