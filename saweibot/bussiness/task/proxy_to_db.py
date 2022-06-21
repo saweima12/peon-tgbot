@@ -9,7 +9,7 @@ from saweibot.data.wrappers import BotConfigWrapper, UserWhitelistWrapper, ChatW
 
 def register_task(scheduler: AppScheduler):
 
-    @scheduler.register_task("proxy_to_db", timedelta(minutes=10))
+    @scheduler.register_task("proxy_to_db", timedelta(minutes=6))
     async def proxy_to_db_task():
         # save bot config
         bot_wrapper = BotConfigWrapper(SERVICE_CODE)
