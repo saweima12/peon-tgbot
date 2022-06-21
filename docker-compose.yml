@@ -4,9 +4,9 @@ services:
     container_name: "saweibot"
     build: .
     volumes:
-      - ./:/usr/src/myapp
+      - .:/app
     ports:
       - 8000:8000
     environment:
-      - SAWEIBOT_CONFIG=/usr/src/myapp/env.py
+      - SAWEIBOT_CONFIG=/app/env.py
     command: "sanic saweibot:app -H 0.0.0.0"
