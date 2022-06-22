@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import re
 from saweibot.utils.type_helper import parse_int
 from saweibot.text import NEED_REPLY_MESSAGE, SET_POINT
@@ -35,6 +36,7 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
         await wrapper.set(target_id, _model)
         await helper.msg.reply(SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
                                                 point=_model.msg_count))
+        logger.info(f"Administrator {helper.user.full_name} set {helper.reply_msg.from_user.full_name} point to {_num}")
 
     elif params_count >= 2:
         # has three above parameter. multiple mode.

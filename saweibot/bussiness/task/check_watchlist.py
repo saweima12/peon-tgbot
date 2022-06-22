@@ -31,14 +31,10 @@ def register_task(scheduler: AppScheduler):
 
             if record.msg_count >= config.senior_count:
                 # update reids
-                logger.info(f"set {record.full_name} member permission")
                 watch_user.status = "ok" 
                 await watch_wrapper.set(row.user_id, watch_user)
-                await watch_wrapper.save_db(row.user_id, watch_user)
                 # udpate database
-                row.status = "ok"
-                row.attach_json = watch_user.dict()
-                await row.save()
+                await watch_wrapper.save_db(row.user_id, watch_user)
 
                 await bot.restrict_chat_member(row.chat_id, row.user_id, ChatPermissions(
                     can_send_messages=True,
@@ -46,4 +42,4 @@ def register_task(scheduler: AppScheduler):
                     can_send_other_messages=True
                 ))
 
-                
+                logger.info(f"set {record.full_name} member permission")
