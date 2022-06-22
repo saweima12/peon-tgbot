@@ -48,3 +48,6 @@ class BehaviorRecordWrapper(BaseModelWrapper[RedisHashMap]):
                 'full_name': obj.full_name,
                 'msg_count': obj.msg_count
             }, chat_id=self.chat_id, user_id=_uid)
+    
+    async def delete_proxy(self):
+        await self.proxy.delete()

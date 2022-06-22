@@ -34,6 +34,9 @@ class ChatWatcherUserWrapper(BaseModelWrapper[RedisHashMap]):
         await self.set(user_id, _data)
         return _data
 
+    async def keys(self):
+        # will return bstr, need to decode.
+        return [item.decode() for item in await self.proxy.keys()]
 
     async def set(self, user_id: str, data: ChatWatchUserModel):
         await self.proxy.set_key(user_id, data.json())
@@ -56,3 +59,7 @@ class ChatWatcherUserWrapper(BaseModelWrapper[RedisHashMap]):
                 'attach_json': attach,
                 'status': _model.status
             }, chat_id=self.chat_id, user_id=_uid)
+    
+    async def delete_proxy(self):
+        await self.proxy.delete()
+        
