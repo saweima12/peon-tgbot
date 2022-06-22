@@ -9,7 +9,7 @@ from saweibot.data.wrappers.chat_config import ChatConfigWrapper
 
 def register_task(scheduler: AppScheduler):
 
-    @scheduler.register_task("cache_admin", timedelta(minutes=1))
+    @scheduler.register_task("cache_admin", timedelta(minutes=10))
     async def cache_admin_task():
         #
         chats = await PeonChatConfig.filter(status="ok")
