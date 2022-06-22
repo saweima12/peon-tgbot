@@ -1,7 +1,11 @@
 from sanic import HTTPResponse, Request, Blueprint, response, text
-from aiogram.types import Update
+from aiogram.types import Update,ChatPermissions
+
 
 from ..bot import get_bot, get_dp
+
+from saweibot.data.entities import ChatWatchUser
+
 
 bp = Blueprint("peon_bot", url_prefix="/peon")
 
@@ -41,3 +45,4 @@ async def peon(request: Request, token: str) -> HTTPResponse:
         print(_e)
 
     return response.empty(status=400)
+
