@@ -10,7 +10,7 @@ from saweibot.meta import SERVICE_CODE
 
 from .command import map as command_map
 from .helper import MessageHelepr
-
+from .operate import set_media_permission
 
 async def process_start_command(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
@@ -84,9 +84,7 @@ async def process_join_chat(message: Message):
 
     #  add restrict
     chat = helper.chat
-    await chat.restrict(helper.user_id, ChatPermissions(can_send_messages=True, 
-                                                        can_send_media_messages=False,
-                                                        can_send_other_messages=False))
+    await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
     # write into watch list.
     wrapper = helper.watcher_wrapper()
     model = await wrapper.get(helper.user_id)
@@ -111,48 +109,31 @@ async def _process_group_msg(helper: MessageHelepr):
     if not await helper.is_group_registered() :
         return
 
+    _increase_count = True
+
     # custom command handle
     if helper.is_text():
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
             return
 
-
+    # get watch user.
     watcher_wrapper = helper.watcher_wrapper()
-    deleted_wrapper = helper.deleted_message_wrapper()
-    message_wrapper = await helper.chat_message_wrapper()
-    # check will overflow.
-    if await message_wrapper.will_overflow():
-        last = await message_wrapper.last()
-        # if overflow, check deleted_list.
-        if await deleted_wrapper.exists(last.message_id):
-            await deleted_wrapper.delete(last.message_id)
-            logger.debug("delete expired message.")
+    _member = await watcher_wrapper.get(helper.user_id, helper.user.full_name)
 
-    # write into msg buffer.
-    await message_wrapper.append(helper.message_model)
-
-    # watch user.
-    _user = await watcher_wrapper.get(helper.user_id, helper.user.full_name)
-
-    if _user.status != "ok":
+    if _member.status != "ok":
         is_group_admin = await helper.is_group_admin()
         # not admin and not text, delete it.
-        chat = helper.chat
-
-        if helper.msg.forward_from:
+        if not is_group_admin and (not helper.is_text() or helper.msg.forward_from):
             await helper.msg.delete()
-
-        if not is_group_admin and not helper.is_text():
-            await helper.msg.delete()
-            await chat.restrict(helper.user_id, ChatPermissions(can_send_messages=True, 
-                                                            can_send_media_messages=False,
-                                                            can_send_other_messages=False,
-                                                            can_add_web_page_previews=False))
-                                                            
+            await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
+            _increase_count = False
 
     if not helper.is_text():
         return 
+
+    if not _increase_count:
+        return
 
     # increase message counter
     behavior_wrapper = helper.behavior_wrapper()
