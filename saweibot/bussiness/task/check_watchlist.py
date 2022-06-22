@@ -42,4 +42,4 @@ def register_task(scheduler: AppScheduler):
                     can_send_other_messages=True
                 ))
 
-                logger.info(f"set {record.full_name} member permission")
+                logger.info(f"set [{record.full_name}]'s member permission")
