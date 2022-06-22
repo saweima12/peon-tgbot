@@ -39,7 +39,8 @@ def register_task(scheduler: AppScheduler):
                 await bot.restrict_chat_member(row.chat_id, row.user_id, ChatPermissions(
                     can_send_messages=True,
                     can_send_media_messages=True,
-                    can_send_other_messages=True
+                    can_send_other_messages=True,
+                    can_add_web_page_previews=True
                 ))
 
                 logger.info(f"set [{record.full_name}]'s member permission")
