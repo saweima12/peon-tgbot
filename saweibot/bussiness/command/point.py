@@ -16,3 +16,4 @@ async def get_point(*params, helper: MessageHelepr):
     await asyncio.sleep(3)
 
     await temp.delete()
+    await helper.msg.delete()
