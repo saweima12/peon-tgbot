@@ -115,6 +115,7 @@ async def _process_group_msg(helper: MessageHelepr):
     if helper.is_text():
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
+            return
 
 
     watcher_wrapper = helper.watcher_wrapper()
@@ -146,8 +147,8 @@ async def _process_group_msg(helper: MessageHelepr):
             await helper.msg.delete()
             await chat.restrict(helper.user_id, ChatPermissions(can_send_messages=True, 
                                                             can_send_media_messages=False,
-                                                            can_send_other_messages=False),
-                                                            can_add_web_page_previews=False)
+                                                            can_send_other_messages=False,
+                                                            can_add_web_page_previews=False))
                                                             
 
     if not helper.is_text():
