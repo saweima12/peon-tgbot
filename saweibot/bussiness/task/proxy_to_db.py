@@ -9,7 +9,7 @@ from saweibot.data.wrappers import BotConfigWrapper, UserWhitelistWrapper, ChatW
 
 def register_task(scheduler: AppScheduler):
 
-    @scheduler.register_task("proxy_to_db", timedelta(minutes=6))
+    @scheduler.register_task("proxy_to_db", timedelta(minutes=10))
     async def proxy_to_db_task():
         # save bot config
         bot_wrapper = BotConfigWrapper(SERVICE_CODE)
@@ -30,10 +30,7 @@ def register_task(scheduler: AppScheduler):
             config = await config_wrapper.get_model()
             await config_wrapper.save_db(config)
 
-            # save watchlist
-            watchlist_wrapper = ChatWatcherUserWrapper(SERVICE_CODE, chat.chat_id)
-            await watchlist_wrapper.save_all_db()
-
             # save behavior record.
             behavior_wrapper = BehaviorRecordWrapper(SERVICE_CODE, chat.chat_id)
             await behavior_wrapper.save_all_db()
+            await behavior_wrapper.delete_proxy() # save finished, remove record map.
