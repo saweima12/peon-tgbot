@@ -116,7 +116,8 @@ async def _process_group_msg(helper: MessageHelepr):
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
 
-    # check file is ok.
+
+    watcher_wrapper = helper.watcher_wrapper()
     deleted_wrapper = helper.deleted_message_wrapper()
     message_wrapper = await helper.chat_message_wrapper()
     # check will overflow.
@@ -130,6 +131,20 @@ async def _process_group_msg(helper: MessageHelepr):
     # write into msg buffer.
     await message_wrapper.append(helper.message_model)
 
+    # watch user.
+    _user = await watcher_wrapper.get(helper.user_id, helper.user.full_name)
+
+    if _user.status != "ok":
+        is_group_admin = await helper.is_group_admin()
+        # not admin and not text, delete it.
+        chat = helper.chat
+
+        if not is_group_admin and not helper.is_text():
+            await helper.msg.delete()
+            await chat.restrict(helper.user_id, ChatPermissions(can_send_messages=True, 
+                                                            can_send_media_messages=False,
+                                                            can_send_other_messages=False))
+
     if not helper.is_text():
         return 
 
@@ -139,6 +154,8 @@ async def _process_group_msg(helper: MessageHelepr):
     _model.full_name = helper.user.full_name
     _model.msg_count += 1
     await behavior_wrapper.set(helper.user_id, _model)
+
+
 
 async def _process_private_msg(helper: MessageHelepr):
     pass

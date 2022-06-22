@@ -18,7 +18,7 @@ class ChatWatcherUserWrapper(BaseModelWrapper[RedisHashMap]):
     async def exists(self, msg_id: str):
         return await self.proxy.exists_key(msg_id)
 
-    async def get(self, user_id: str):
+    async def get(self, user_id: str, user_name: str=""):
         result = await self.proxy.get(user_id)
         if result:
             _data = ChatWatchUserModel.parse_raw(result)
@@ -26,9 +26,13 @@ class ChatWatcherUserWrapper(BaseModelWrapper[RedisHashMap]):
 
         result = await ChatWatchUser.get_or_none(chat_id=self.chat_id, user_id=user_id)
         if result:
-            return ChatWatchUserModel(**result.attach_json)
-
-        return ChatWatchUserModel(user_id=user_id)
+            _data = ChatWatchUserModel(**result.attach_json)
+            await self.set(user_id, _data)
+            return _data
+        
+        _data = ChatWatchUserModel(user_id=user_id, full_name=user_name)
+        await self.set(user_id, _data)
+        return _data
 
 
     async def set(self, user_id: str, data: ChatWatchUserModel):

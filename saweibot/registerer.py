@@ -7,7 +7,7 @@ from saweibot.data.models import BotConfigModel
 from saweibot.data.wrappers import BotConfigWrapper
 from saweibot.views import bot as bot_view
 
-from saweibot.bussiness.task import check_watchlist, proxy_to_db
+from saweibot.bussiness.task import check_watchlist, proxy_to_db, cache_group_admin
 
 
 from .meta import SERVICE_CODE
@@ -50,3 +50,4 @@ def setup(app: Sanic, orm_modules: dict):
     # register scheudle task.
     check_watchlist.register_task(_scheduler)
     proxy_to_db.register_task(_scheduler)
+    cache_group_admin.register_task(_scheduler)

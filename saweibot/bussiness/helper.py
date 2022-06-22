@@ -76,10 +76,9 @@ class MessageHelepr():
         return self.content_type == "text"
 
     async def is_group_admin(self) -> bool:
-        bot = self.msg.bot
-        admin_list = await bot.get_chat_administrators(self.chat_id)
-        admin_id_set = set([str(item.user.id) for item in admin_list])
-        return self.user_id in admin_id_set
+        wrapper = self.chat_config_wrapper()
+        config = await wrapper.get_model()
+        return self.user_id in config.adminstrators
 
     async def is_whitelist_user(self) -> bool:
         wrapper = UserWhitelistWrapper(self.bot_id)

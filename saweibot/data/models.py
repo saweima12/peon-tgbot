@@ -15,6 +15,7 @@ class ChatConfigModel(OrjsonBaseModel):
     buffer_size: int = 50
     status: Status = Status.OK
     senior_count = 300
+    adminstrators: List[str] = []
 
 class ChatWatchUserModel(OrjsonBaseModel):
     user_id: str

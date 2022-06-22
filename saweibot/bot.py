@@ -68,7 +68,8 @@ def setup(app: Sanic) -> Bot:
     async def on_join_chat(message: Message):
         Bot.set_current(bot)
         try:
-            await bll.process_join_chat(message)
+            # await bll.process_join_chat(message)
+            pass
         except Exception as _e:
             logger.error(traceback.format_exc())
 
