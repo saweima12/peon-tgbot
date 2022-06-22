@@ -4,7 +4,7 @@ from saweibot.utils.type_helper import parse_int
 from saweibot.text import NEED_REPLY_MESSAGE, SET_POINT
 
 from ..helper import MessageHelepr
-
+from ..operate import set_media_permission
 
 async def set_reocrd_point(*params, helper: MessageHelepr):
 
@@ -28,14 +28,30 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
             await helper.msg.reply(NEED_REPLY_MESSAGE)
             return 
 
-        #  set point
-        target_id = helper.reply_msg.from_user.id
-        wrapper = helper.behavior_wrapper()
-        _model = await wrapper.get(target_id)
-        _model.msg_count = _num
-        await wrapper.set(target_id, _model)
+        # get wrapper
+        behavior_wrapper = helper.behavior_wrapper()
+        config_wrapper = helper.chat_config_wrapper()
+
+        config = await config_wrapper.get_model()
+        #  set point to proxy & database.
+        target_msg = helper.reply_msg.from_user
+        target_id = target_msg.id
+        record = await behavior_wrapper.get(target_id)
+        record.msg_count = _num
+        await behavior_wrapper.set(target_id, record)
+
+        # set watcher state.
+        if record.msg_count >= config.senior_count:
+            watcher_wrapper = helper.watcher_wrapper()
+            member = await watcher_wrapper.get(target_id, target_msg.full_name)
+            member.status = "ok"
+            await watcher_wrapper.set(target_id, member)
+            await watcher_wrapper.save_db(target_id, member)
+            await set_media_permission(helper.bot, helper.chat_id, target_id, True)
+            logger.info(f"Point over than {config.senior_count}, open sticker permission.")
+
         await helper.msg.reply(SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
-                                                point=_model.msg_count))
+                                                point=record.msg_count))
         logger.info(f"Administrator [{helper.user.full_name}] set [{helper.reply_msg.from_user.full_name}] point to {_num}")
 
     elif params_count >= 2:
