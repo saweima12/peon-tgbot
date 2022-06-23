@@ -1,4 +1,5 @@
 # coding=utf-8
+from email import message
 from sanic.log import logger
 from aiogram import Bot
 from aiogram.types import Message, ChatPermissions
@@ -127,6 +128,7 @@ async def _process_group_msg(helper: MessageHelepr):
         if not is_group_admin and (not helper.is_text() or helper.msg.forward_from):
             await helper.msg.delete()
             await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
+            logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
             _increase_count = False
 
     if not helper.is_text():
