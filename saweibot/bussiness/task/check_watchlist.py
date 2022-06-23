@@ -16,7 +16,7 @@ from ..operate import set_media_permission
 
 def register_task(scheduler: AppScheduler):
 
-    @scheduler.register_task("check_watchlist", period=timedelta(minutes=2))
+    @scheduler.register_task("check_watchlist", period=timedelta(minutes=5))
     async def check_watchlist_task():
         # get all watch chat.
         chats = await PeonChatConfig.filter(status="ok")

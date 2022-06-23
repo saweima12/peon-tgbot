@@ -15,5 +15,7 @@ async def get_point(*params, helper: MessageHelepr):
     logger.info(f"User [{helper.user.full_name}] query point: {_model.msg_count}")
     await asyncio.sleep(3)
 
-    await temp.delete()
-    await helper.msg.delete()
+    await asyncio.gather(
+        temp.delete(),
+        helper.msg.delete()
+    )
