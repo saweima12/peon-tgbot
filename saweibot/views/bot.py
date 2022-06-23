@@ -1,10 +1,8 @@
 from sanic import HTTPResponse, Request, Blueprint, response, text
-from aiogram.types import Update,ChatPermissions
+from aiogram.types import Update
 
 
 from ..bot import get_bot, get_dp
-
-from saweibot.data.entities import ChatWatchUser
 
 
 bp = Blueprint("peon_bot", url_prefix="/peon")

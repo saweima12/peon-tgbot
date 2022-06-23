@@ -1,13 +1,11 @@
 import asyncio
 from datetime import timedelta
 from sanic.log import logger
-from aiogram.types.chat_permissions import ChatPermissions
 
 from saweibot.bot import get_bot
 from saweibot.data.entities import PeonChatConfig
 from saweibot.data.models import ChatBehaviorRecordModel, ChatWatchUserModel
 from saweibot.data.wrappers import BehaviorRecordWrapper
-from saweibot.data.wrappers import watch_user
 from saweibot.data.wrappers.chat_config import ChatConfigWrapper
 from saweibot.data.wrappers.watch_user import ChatWatcherUserWrapper
 from saweibot.meta import SERVICE_CODE
