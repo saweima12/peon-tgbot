@@ -50,8 +50,9 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
             await set_media_permission(helper.bot, helper.chat_id, target_id, True)
             logger.info(f"Point over than {config.senior_count}, open sticker permission.")
 
-        await helper.msg.reply(SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
-                                                point=record.msg_count))
+        await helper.bot.send_message(helper.chat_id, 
+                                    SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
+                                                     point=record.msg_count))
         logger.info(f"Administrator [{helper.user.full_name}] set [{helper.reply_msg.from_user.full_name}] point to {_num}")
 
     elif params_count >= 2:
