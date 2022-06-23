@@ -75,6 +75,9 @@ class MessageHelepr():
     def is_text(self):
         return self.content_type == "text"
 
+    def is_forward(self):
+        return self.msg.is_forward()
+
     async def is_group_admin(self) -> bool:
         wrapper = self.chat_config_wrapper()
         config = await wrapper.get_model()

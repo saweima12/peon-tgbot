@@ -1,11 +1,9 @@
 # coding=utf-8
-from email import message
 from sanic.log import logger
 from aiogram import Bot
-from aiogram.types import Message, ChatPermissions
+from aiogram.types import Message
 
 from saweibot.data.entities import PeonChatConfig
-from saweibot.data.wrappers.watch_user import ChatWatcherUserWrapper
 
 from saweibot.meta import SERVICE_CODE
 
@@ -125,7 +123,7 @@ async def _process_group_msg(helper: MessageHelepr):
     if _member.status != "ok":
         is_group_admin = await helper.is_group_admin()
         # not admin and not text, delete it.
-        if not is_group_admin and (not helper.is_text() or helper.msg.forward_from):
+        if not is_group_admin and (not helper.is_text() or helper.is_forward()):
             await helper.msg.delete()
             await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
             logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
