@@ -76,6 +76,6 @@ def register_task(scheduler: AppScheduler):
                     await asyncio.gather(*task_list)
             
             # task finished, remove watchlist.
-            print("remove proxy.")
+            logger.debuf("remove proxy.")
             await watch_wrapper.delete_proxy()
                 
