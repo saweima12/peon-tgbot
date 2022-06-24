@@ -40,16 +40,22 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
         record.msg_count = _num
         await behavior_wrapper.set(target_id, record)
 
+        watcher_wrapper = helper.watcher_wrapper()
+        member = await watcher_wrapper.get(target_id, target_msg.full_name)
         # set watcher state.
         if record.msg_count >= config.senior_count:
-            watcher_wrapper = helper.watcher_wrapper()
-            member = await watcher_wrapper.get(target_id, target_msg.full_name)
             member.status = "ok"
-            await watcher_wrapper.set(target_id, member)
-            await watcher_wrapper.save_db(target_id, member)
+
             await set_media_permission(helper.bot, helper.chat_id, target_id, True)
             logger.info(f"Point over than {config.senior_count}, open sticker permission.")
+        else:
+            member.status = "ng"
+            await set_media_permission(helper.bot, helper.chat_id, target_id, True)
+            logger.info(f"Point lower than {config.senior_count}, close sticker permission.")
 
+
+        await watcher_wrapper.set(target_id, member)
+        await watcher_wrapper.save_db(target_id, member)
         await helper.bot.send_message(helper.chat_id, 
                                     SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
                                                      point=record.msg_count))

@@ -1,4 +1,5 @@
 # coding=utf-8
+import asyncio
 from sanic.log import logger
 from aiogram import Bot
 from aiogram.types import Message
@@ -7,6 +8,7 @@ from saweibot.data.entities import PeonChatConfig
 from saweibot.meta import SERVICE_CODE
 from saweibot.services import bot
 
+from saweibot.text import FIRST_URL_MESSAGE
 from .command import map as command_map
 from .helper import MessageHelepr
 from .operate import set_media_permission
@@ -107,6 +109,7 @@ async def _process_group_msg(helper: MessageHelepr):
         return
     
     _increase_count = True
+    _delay_msg = None
 
     # custom command handle
     if helper.is_text():
@@ -118,12 +121,24 @@ async def _process_group_msg(helper: MessageHelepr):
     watcher_wrapper = helper.watcher_wrapper()
     _member = await watcher_wrapper.get(helper.user_id, helper.user.full_name)
 
+    # get record data.
+    behavior_wrapper = helper.behavior_wrapper()
+    _model = await behavior_wrapper.get(helper.user_id)
+
     if _member.status != "ok":
         is_group_admin = await helper.is_group_admin()
+
+        # is first send message?
+        if _model.msg_count < 1:
+            await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
+
+            if helper.has_url():
+                await helper.msg.delete()
+                _delay_msg = helper.bot.send_message(helper.chat_id, FIRST_URL_MESSAGE)
+                
         # not admin and not text, delete it.
         if not is_group_admin and (not helper.is_text() or helper.is_forward()):
             await helper.msg.delete()
-            await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
             logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
             _increase_count = False
 
@@ -138,12 +153,16 @@ async def _process_group_msg(helper: MessageHelepr):
         return
 
     # increase message counter
-    behavior_wrapper = helper.behavior_wrapper()
-    _model = await behavior_wrapper.get(helper.user_id)
     _model.full_name = helper.user.full_name
     _model.msg_count += 1
     await behavior_wrapper.set(helper.user_id, _model)
 
+    # wait delay event.
+    if _delay_msg:
+        _delay_msg = await _delay_msg
+        await asyncio.sleep(5)
+        await _delay_msg.delete()
+        
 
 
 async def _process_private_msg(helper: MessageHelepr):

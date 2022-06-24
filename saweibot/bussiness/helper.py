@@ -10,6 +10,8 @@ from saweibot.data.wrappers.chat_message import ChatMessageWrapper
 from saweibot.data.wrappers.user_whitelist import UserWhitelistWrapper
 from saweibot.data.wrappers.deleted_message import DeletedMessageWrapper
 
+from saweibot.utils import has_url
+
 class MessageHelepr():
     
     def __init__(self, bot_id: str, message: Message):
@@ -63,20 +65,25 @@ class MessageHelepr():
     Match
     """
 
-    def is_bot(self):
+    def is_bot(self) -> bool:
         return self.user.is_bot
 
     def is_super_group(self) -> bool:
         return self.chat.type == ChatType.SUPERGROUP
 
-    def is_private_chat(self):
+    def is_private_chat(self) -> bool:
         return self.chat.type == ChatType.PRIVATE
     
-    def is_text(self):
+    def is_text(self) -> bool:
         return self.content_type == "text"
 
-    def is_forward(self):
+    def is_forward(self) -> bool:
         return self.msg.is_forward()
+
+    def has_url(self) -> bool:
+        if self.is_text():
+            return has_url(self.msg.text)
+        return False
 
     async def is_group_admin(self) -> bool:
         wrapper = self.chat_config_wrapper()
