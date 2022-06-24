@@ -135,6 +135,7 @@ async def _process_group_msg(helper: MessageHelepr):
             if helper.has_url():
                 await helper.msg.delete()
                 _delay_msg = helper.bot.send_message(helper.chat_id, FIRST_URL_MESSAGE)
+                logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
                 
         # not admin and not text, delete it.
         if not is_group_admin and (not helper.is_text() or helper.is_forward()):
