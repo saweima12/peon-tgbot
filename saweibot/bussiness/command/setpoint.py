@@ -1,3 +1,4 @@
+import asyncio
 import re
 from sanic.log import logger
 from saweibot.utils.type_helper import parse_int
@@ -56,10 +57,14 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
 
         await watcher_wrapper.set(target_id, member)
         await watcher_wrapper.save_db(target_id, member)
-        await helper.bot.send_message(helper.chat_id, 
+        _msg = await helper.bot.send_message(helper.chat_id, 
                                     SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
                                                      point=record.msg_count))
         logger.info(f"Administrator [{helper.user.full_name}] set [{helper.reply_msg.from_user.full_name}] point to {_num}")
+
+        await asyncio.sleep(5)
+        await _msg.delete()
+
 
     elif params_count >= 2:
         # has three above parameter. multiple mode.
