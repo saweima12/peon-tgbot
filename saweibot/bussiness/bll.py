@@ -108,6 +108,7 @@ async def _process_group_msg(helper: MessageHelepr):
     if not await helper.is_group_registered() :
         return
 
+    
     _increase_count = True
 
     # custom command handle

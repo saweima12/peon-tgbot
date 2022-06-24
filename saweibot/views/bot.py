@@ -3,7 +3,7 @@ from sanic.log import logger
 from aiogram.types import Update
 
 
-from ..services.bot import get_bot, get_dp
+from saweibot.services import bot
 
 bp = Blueprint("peon_bot", url_prefix="/peon")
 
@@ -29,17 +29,21 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     :param token [str] -> Telegram.bot_token
     """
     # check token is correct.
-    bot = get_bot()
+    _bot = bot.get_bot()
     if bot._token != token:
         return response.empty(status=404)
 
     # dispatch update event.
-    dp = get_dp()
+    _dp = bot.get_dp()
+
+    # set currenct bot.
+    bot.set_current()
 
     logger.debug(f"Update: {request.json}")    
+
     _update = Update(**request.json)
     try:
-        await dp.process_update(_update)
+        await _dp.process_update(_update)
         return response.empty(status=200)
     except Exception as _e:
         print(_e)

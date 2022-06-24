@@ -95,6 +95,7 @@ def setup(app: Sanic) -> Bot:
 
 def set_current():
     _bot = get_bot()
+    print(_bot)
     Bot.set_current(_bot)
     return _bot
 
