@@ -1,5 +1,5 @@
 from datetime import timedelta
-from saweibot.bot import get_bot
+from saweibot.services.bot import get_bot
 from saweibot.data.wrappers.behavior_record import BehaviorRecordWrapper
 from saweibot.meta import SERVICE_CODE
 from saweibot.services.scheduler.struct import AppScheduler

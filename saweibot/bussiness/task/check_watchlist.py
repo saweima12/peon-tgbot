@@ -2,7 +2,7 @@ import asyncio
 from datetime import timedelta
 from sanic.log import logger
 
-from saweibot.bot import get_bot
+from saweibot.services.bot import get_bot
 from saweibot.data.entities import PeonChatConfig
 from saweibot.data.models import ChatBehaviorRecordModel, ChatWatchUserModel
 from saweibot.data.wrappers import BehaviorRecordWrapper

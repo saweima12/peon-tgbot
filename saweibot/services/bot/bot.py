@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes, ChatType
 
 from saweibot.bussiness import bll
-from .meta import SERVICE_CODE
+from ...meta import SERVICE_CODE
 
 DP_CODE = f"{SERVICE_CODE}_dp"
 
@@ -28,7 +28,8 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['start'])
     async def on_start_command(message: Message):
-        Bot.set_current(bot)
+        set_current()
+
         try:
             await bll.process_start_command(message)
         except Exception as _e:
@@ -37,7 +38,8 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['stop'])
     async def on_stop_command(message: Message):
-        Bot.set_current(bot)
+        set_current()
+
         try:
             await bll.process_stop_command(message)
         except Exception as _e:
@@ -46,7 +48,8 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['test'])
     async def on_test_command(message: Message):
-        Bot.set_current(bot)
+        set_current()
+
         try:
             await bll.process_join_chat(message)
         except Exception as _e:
@@ -56,7 +59,8 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['about'])
     async def on_about_command(message: Message):
-        Bot.set_current(bot)
+        set_current()
+
         try:
             await message.reply(message.from_user.as_json())
             await message.reply(message.chat.as_json())
@@ -66,9 +70,9 @@ def setup(app: Sanic) -> Bot:
     # handle new member command
     @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
     async def on_join_chat(message: Message):
-        Bot.set_current(bot)
+        set_current()
+
         try:
-            # await bll.process_join_chat(message)
             pass
         except Exception as _e:
             logger.error(traceback.format_exc())
@@ -76,7 +80,7 @@ def setup(app: Sanic) -> Bot:
     # handle chat message, include sticker, animation, video, voice, text.
     @dp.message_handler(content_types=ContentTypes.ANY)
     async def on_chat_message(message: Message):
-        Bot.set_current(bot)
+        set_current()
         try:
             await bll.process_chat_message(message)
         except Exception as _e:
@@ -89,12 +93,16 @@ def setup(app: Sanic) -> Bot:
     logger.info(f"Register Dispatcher: {DP_CODE}")
     return bot
 
+def set_current():
+    _bot = get_bot()
+    Bot.set_current(_bot)
+    return _bot
+
 async def set_webhook(app: Sanic, bot: Bot):
     # register webhook uri.
     hook_route = os.path.join("/peon", app.config.TGBOT_PEON_TOKEN)
     webhook_uri = urljoin(app.config['DOMAIN_URL'], hook_route)
     await bot.set_webhook(webhook_uri)
-
 
 async def dispose(app: Sanic):
     if hasattr(app.ctx, SERVICE_CODE):

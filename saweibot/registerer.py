@@ -1,7 +1,7 @@
 from sanic import Sanic
 
 from saweibot.common.entities import BotConfig
-from saweibot.services import redis, scheduler
+from saweibot.services import redis, scheduler, bot
 
 from saweibot.data.models import BotConfigModel
 from saweibot.data.wrappers import BotConfigWrapper
@@ -11,20 +11,19 @@ from saweibot.bussiness.task import check_watchlist, proxy_to_db, cache_group_ad
 
 
 from .meta import SERVICE_CODE
-from . import bot
+
+
 
 def setup(app: Sanic, orm_modules: dict):
     # register service.
     _redis = redis.register(app)
     _scheduler = scheduler.register(app)
+    _bot = bot.register(app)
 
-    # setup bot
-    instance = bot.setup(app)
-    
     @app.after_server_start
     async def setup(app, loop):
         # register webhook.
-        await bot.set_webhook(app, instance)
+        await bot.set_webhook(app, _bot)
         # add to redis
         await BotConfigWrapper(SERVICE_CODE).load()
 

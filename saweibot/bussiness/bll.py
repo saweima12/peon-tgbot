@@ -4,8 +4,8 @@ from aiogram import Bot
 from aiogram.types import Message
 
 from saweibot.data.entities import PeonChatConfig
-
 from saweibot.meta import SERVICE_CODE
+from saweibot.services import bot
 
 from .command import map as command_map
 from .helper import MessageHelepr
@@ -77,7 +77,7 @@ async def process_stop_command(message: Message):
 async def process_join_chat(message: Message):
     # logger.info("on join:", message.as_json())
     helper = MessageHelepr(SERVICE_CODE, message)
-    
+
     if await helper.is_senior_member():
         return
 
@@ -94,7 +94,9 @@ async def process_join_chat(message: Message):
 
 async def process_chat_message(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
-    
+    # set bot's context.
+    bot.set_current()
+
     if helper.is_super_group():
         await _process_group_msg(helper)
 
@@ -102,8 +104,6 @@ async def process_chat_message(message: Message):
         await _process_private_msg(helper)
 
 async def _process_group_msg(helper: MessageHelepr):
-    logger.debug(helper.msg.as_json())
-
     # check chat_id in whitelist.
     if not await helper.is_group_registered() :
         return
@@ -131,6 +131,10 @@ async def _process_group_msg(helper: MessageHelepr):
 
     if not helper.is_text():
         return 
+
+    # must be more than two words
+    if not len(helper.msg.text) >= 2:
+        return
 
     if not _increase_count:
         return

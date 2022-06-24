@@ -1,9 +1,9 @@
 from sanic import HTTPResponse, Request, Blueprint, response, text
+from sanic.log import logger
 from aiogram.types import Update
 
 
-from ..bot import get_bot, get_dp
-
+from ..services.bot import get_bot, get_dp
 
 bp = Blueprint("peon_bot", url_prefix="/peon")
 
@@ -35,6 +35,8 @@ async def peon(request: Request, token: str) -> HTTPResponse:
 
     # dispatch update event.
     dp = get_dp()
+
+    logger.debug(f"Update: {request.json}")    
     _update = Update(**request.json)
     try:
         await dp.process_update(_update)
