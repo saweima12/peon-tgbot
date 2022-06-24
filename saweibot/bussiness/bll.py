@@ -95,8 +95,6 @@ async def process_join_chat(message: Message):
 async def process_chat_message(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
     # set bot's context.
-    bot.set_current()
-
     if helper.is_super_group():
         await _process_group_msg(helper)
 
@@ -107,7 +105,6 @@ async def _process_group_msg(helper: MessageHelepr):
     # check chat_id in whitelist.
     if not await helper.is_group_registered() :
         return
-
     
     _increase_count = True
 

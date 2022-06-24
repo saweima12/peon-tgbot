@@ -28,8 +28,6 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['start'])
     async def on_start_command(message: Message):
-        set_current()
-
         try:
             await bll.process_start_command(message)
         except Exception as _e:
@@ -38,8 +36,6 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['stop'])
     async def on_stop_command(message: Message):
-        set_current()
-
         try:
             await bll.process_stop_command(message)
         except Exception as _e:
@@ -48,8 +44,6 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['test'])
     async def on_test_command(message: Message):
-        set_current()
-
         try:
             await bll.process_join_chat(message)
         except Exception as _e:
@@ -59,8 +53,6 @@ def setup(app: Sanic) -> Bot:
     # handle start command
     @dp.message_handler(commands=['about'])
     async def on_about_command(message: Message):
-        set_current()
-
         try:
             await message.reply(message.from_user.as_json())
             await message.reply(message.chat.as_json())
@@ -70,8 +62,6 @@ def setup(app: Sanic) -> Bot:
     # handle new member command
     @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
     async def on_join_chat(message: Message):
-        set_current()
-
         try:
             pass
         except Exception as _e:
@@ -80,7 +70,6 @@ def setup(app: Sanic) -> Bot:
     # handle chat message, include sticker, animation, video, voice, text.
     @dp.message_handler(content_types=ContentTypes.ANY)
     async def on_chat_message(message: Message):
-        set_current()
         try:
             await bll.process_chat_message(message)
         except Exception as _e:
@@ -95,7 +84,6 @@ def setup(app: Sanic) -> Bot:
 
 def set_current():
     _bot = get_bot()
-    print(_bot)
     Bot.set_current(_bot)
     return _bot
 

@@ -14,7 +14,6 @@ async def me(request: Request) -> HTTPResponse:
 
     :param reuqest [sanic.Request]
     """
-    bot = get_bot()
     me = await bot.get_me()
 
     return text(me.as_json())
@@ -46,7 +45,7 @@ async def peon(request: Request, token: str) -> HTTPResponse:
         await _dp.process_update(_update)
         return response.empty(status=200)
     except Exception as _e:
-        print(_e)
+        logger.error(_e)
 
     return response.empty(status=400)
 
