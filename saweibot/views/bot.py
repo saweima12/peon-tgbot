@@ -30,7 +30,7 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     """
     # check token is correct.
     _bot = bot.get_bot()
-    if bot._token != token:
+    if _bot._token != token:
         return response.empty(status=404)
 
     # dispatch update event.
