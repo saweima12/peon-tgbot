@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import traceback
 from asyncio.log import logger
 from sanic import Blueprint, Request, response
@@ -44,8 +45,10 @@ async def get_deleted_message(request: Request):
     if not chat_id:
         return response.json([])
 
+    start = (datetime.utcnow() - timedelta(days=14)).strftime("%Y-%m-%d")
+
     try:
-        result = await ChatDeletedMessage.filter(chat_id=chat_id)
+        result = await ChatDeletedMessage.filter(chat_id=chat_id, record_date__gte=start)
         if not result:
             return response.json([])
         
@@ -54,6 +57,8 @@ async def get_deleted_message(request: Request):
                         raw=item.message_json,
                         record_time=item.record_date.isoformat()
                     ).dict() for item in result]
+
+        
         return response.json(result)
     except Exception:
         logger.error(traceback.format_exc())
