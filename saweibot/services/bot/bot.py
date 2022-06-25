@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message, ContentTypes, ChatType
 
 from saweibot.bussiness import bll
-from ...meta import SERVICE_CODE
+from saweibot.meta import SERVICE_CODE
 
 DP_CODE = f"{SERVICE_CODE}_dp"
 
@@ -38,32 +38,6 @@ def setup(app: Sanic) -> Bot:
     async def on_stop_command(message: Message):
         try:
             await bll.process_stop_command(message)
-        except Exception as _e:
-            logger.error(traceback.format_exc())
-
-    # handle start command
-    @dp.message_handler(commands=['test'])
-    async def on_test_command(message: Message):
-        try:
-            await bll.process_join_chat(message)
-        except Exception as _e:
-            logger.error(traceback.format_exc())
-
-
-    # handle start command
-    @dp.message_handler(commands=['about'])
-    async def on_about_command(message: Message):
-        try:
-            await message.reply(message.from_user.as_json())
-            await message.reply(message.chat.as_json())
-        except Exception as _e:
-            logger.error(traceback.format_exc())
-
-    # handle new member command
-    @dp.message_handler(content_types=ContentTypes.NEW_CHAT_MEMBERS)
-    async def on_join_chat(message: Message):
-        try:
-            pass
         except Exception as _e:
             logger.error(traceback.format_exc())
 

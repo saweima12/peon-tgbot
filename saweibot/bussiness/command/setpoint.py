@@ -35,18 +35,19 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
 
         config = await config_wrapper.get_model()
         #  set point to proxy & database.
-        target_msg = helper.reply_msg.from_user
-        target_id = target_msg.id
+        reply_user = helper.reply_msg.from_user
+        target_id = reply_user.id
+        # set model.
         record = await behavior_wrapper.get(target_id)
         record.msg_count = _num
+        record.full_name = reply_user.full_name
         await behavior_wrapper.set(target_id, record)
 
         watcher_wrapper = helper.watcher_wrapper()
-        member = await watcher_wrapper.get(target_id, target_msg.full_name)
+        member = await watcher_wrapper.get(target_id, reply_user.full_name)
         # set watcher state.
         if record.msg_count >= config.senior_count:
             member.status = "ok"
-
             await set_media_permission(helper.bot, helper.chat_id, target_id, True)
             logger.info(f"Point over than {config.senior_count}, open sticker permission.")
         else:
@@ -54,16 +55,18 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
             await set_media_permission(helper.bot, helper.chat_id, target_id, True)
             logger.info(f"Point lower than {config.senior_count}, close sticker permission.")
 
+        await asyncio.gather(
+            watcher_wrapper.set(target_id, member),
+            watcher_wrapper.save_db(target_id, member)
+        )
 
-        await watcher_wrapper.set(target_id, member)
-        await watcher_wrapper.save_db(target_id, member)
-        _msg = await helper.bot.send_message(helper.chat_id, 
-                                    SET_POINT.format(user=helper.reply_msg.from_user.full_name, 
-                                                     point=record.msg_count))
+        _msg = SET_POINT.format(user=helper.reply_msg.from_user.full_name, point=record.msg_count)
+        _tips_msg = await helper.bot.send_message(helper.chat_id, _msg)
+
         logger.info(f"Administrator [{helper.user.full_name}] set [{helper.reply_msg.from_user.full_name}] point to {_num}")
 
         await asyncio.sleep(5)
-        await _msg.delete()
+        await _tips_msg.delete()
 
 
     elif params_count >= 2:

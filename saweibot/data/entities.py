@@ -24,15 +24,6 @@ class UserWhitelist(Model):
     class Meta:
         table = "peon_user_whitelist"
 
-class UrlBlackList(Model):
-
-    url_ptn = fields.TextField()
-    status = fields.CharField(max_length=8)
-    created_date = fields.DatetimeField(auto_now_add=True)
-
-    class Meta:
-        table = "peon_url_blacklist"
-
 
 class ChatWatchUser(Model):
     chat_id = fields.CharField(max_length=40, index=True)
@@ -54,13 +45,12 @@ class ChatBehaviorRecord(Model):
     class Meta:
         table = "peon_behavior_record"
 
-class ContentBlacklist(Model):
-    
+class ChatDeletedMessage(Model):
+
     chat_id = fields.CharField(max_length=40, index=True)
-    content_type = fields.CharField(max_length=100)
-    file_id = fields.TextField()
-    file_unique_id = fields.TextField()
-    status = fields.CharField(max_length=8)
+    content_type = fields.CharField(max_length=40, index=True)
+    message_json = fields.JSONField()
+    record_date = fields.DatetimeField(auto_now_add=True)
 
     class Meta:
-        table = "peon_content_blacklist"
+        table = "peon_deleted_message"

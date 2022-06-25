@@ -14,7 +14,8 @@ async def me(request: Request) -> HTTPResponse:
 
     :param reuqest [sanic.Request]
     """
-    me = await bot.get_me()
+    _bot = bot.get_bot()
+    me = await _bot.get_me()
 
     return text(me.as_json())
 

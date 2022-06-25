@@ -5,13 +5,13 @@ from aiogram import Bot
 from aiogram.types import Message
 
 from saweibot.data.entities import PeonChatConfig
+from saweibot.data.models import ChatBehaviorRecordModel
 from saweibot.meta import SERVICE_CODE
-from saweibot.services import bot
+from saweibot.text import FIRST_URL_TIPS, MEDIA_MESSAGE_TIPS
 
-from saweibot.text import FIRST_URL_MESSAGE
 from .command import map as command_map
 from .helper import MessageHelepr
-from .operate import set_media_permission
+from .operate import set_media_permission, record_deleted_message
 
 async def process_start_command(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
@@ -76,23 +76,6 @@ async def process_stop_command(message: Message):
     await PeonChatConfig.update_or_create(defaults=_update, chat_id=helper.chat_id)
     await message.reply(f"Set bot deactive on {helper.chat.full_name} group.")
 
-async def process_join_chat(message: Message):
-    # logger.info("on join:", message.as_json())
-    helper = MessageHelepr(SERVICE_CODE, message)
-
-    if await helper.is_senior_member():
-        return
-
-    #  add restrict
-    chat = helper.chat
-    await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
-    # write into watch list.
-    wrapper = helper.watcher_wrapper()
-    model = await wrapper.get(helper.user_id)
-    model.full_name = helper.user.full_name
-    await wrapper.set(helper.user_id, model)
-    await wrapper.save_db(helper.user_id, model)
-    logger.info(f"New member join: {message.from_user.id} - {message.from_user.full_name}")
 
 async def process_chat_message(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
@@ -100,16 +83,12 @@ async def process_chat_message(message: Message):
     if helper.is_super_group():
         await _process_group_msg(helper)
 
-    elif helper.is_private_chat():
-        await _process_private_msg(helper)
-
 async def _process_group_msg(helper: MessageHelepr):
     # check chat_id in whitelist.
     if not await helper.is_group_registered() :
         return
     
-    _increase_count = True
-    _delay_msg = None
+    _tips_msg = None
 
     # custom command handle
     if helper.is_text():
@@ -123,25 +102,15 @@ async def _process_group_msg(helper: MessageHelepr):
 
     # get record data.
     behavior_wrapper = helper.behavior_wrapper()
-    _model = await behavior_wrapper.get(helper.user_id)
+    _record = await behavior_wrapper.get(helper.user_id)
 
     if _member.status != "ok":
-        is_group_admin = await helper.is_group_admin()
+        _tips_msg = await _check_member_msg(helper, _record)
 
-        # is first send message?
-        if not is_group_admin and _model.msg_count < 1:
-            await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
-
-            if helper.has_url():
-                await helper.msg.delete()
-                _delay_msg = await helper.bot.send_message(helper.chat_id, FIRST_URL_MESSAGE)
-                logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-                
-        # not admin and not text, delete it.
-        if not is_group_admin and (not helper.is_text() or helper.is_forward()):
-            await helper.msg.delete()
-            logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-            _increase_count = False
+    # watting to delete tips message.
+    if _tips_msg:
+        await asyncio.sleep(30)
+        await _tips_msg.delete()
 
     if not helper.is_text():
         return 
@@ -150,20 +119,44 @@ async def _process_group_msg(helper: MessageHelepr):
     if not len(helper.msg.text) >= 2:
         return
 
-    if not _increase_count:
-        return
-
     # increase message counter
-    _model.full_name = helper.user.full_name
-    _model.msg_count += 1
-    await behavior_wrapper.set(helper.user_id, _model)
+    _record.full_name = helper.user.full_name
+    _record.msg_count += 1
+    await behavior_wrapper.set(helper.user_id, _record)
 
-    # wait delay event.
-    if _delay_msg:
-        await asyncio.sleep(3)
-        await _delay_msg.delete()
-        
+async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordModel):
+    is_group_admin = await helper.is_group_admin()
 
+    # is first send message?
+    if not is_group_admin and record.msg_count < 1:
+        await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
 
-async def _process_private_msg(helper: MessageHelepr):
-    pass
+        if helper.has_url():
+            await asyncio.gather(
+                helper.msg.delete(),                               # delete message
+                record_deleted_message(helper.chat_id, helper.msg) # record to database.
+            )                
+            # send tips message.
+            _msg = FIRST_URL_TIPS.format(full_name=helper.user.full_name, 
+                                        user_id=helper.user_id)
+            _tips_msg = await helper.bot.send_message(helper.chat_id, _msg, parse_mode="Markdown")
+            logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+            return _tips_msg
+            
+    # not admin and not text, delete it.
+    if not is_group_admin and (not helper.is_text() or helper.is_forward()):
+        await asyncio.gather(
+            helper.msg.delete(),
+            record_deleted_message(helper.chat_id, helper.msg)
+        )
+
+        _config = await helper.chat_config_wrapper().get_model()
+        # send tips message.
+        _msg_text = MEDIA_MESSAGE_TIPS.format(full_name=helper.user.full_name,
+                                                user_id=helper.user_id,
+                                                min_point=_config.senior_count)
+        _tips_msg = await helper.bot.send_message(helper.chat_id, _msg_text, parse_mode="Markdown")
+        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+        return _tips_msg
+
+    return None

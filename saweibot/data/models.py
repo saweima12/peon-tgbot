@@ -33,10 +33,3 @@ class ChatMessageModel(OrjsonBaseModel):
 class ChatBehaviorRecordModel(OrjsonBaseModel):
     full_name: str = ""
     msg_count: int = 0
-
-class FileContentModel(OrjsonBaseModel):
-    file_id: str
-    status: Status = Status.OK
-
-class FileBlackListModel(OrjsonBaseModel):
-    blacklist_map: Dict[str, FileContentModel] = {}

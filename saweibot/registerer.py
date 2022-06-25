@@ -5,7 +5,8 @@ from saweibot.services import redis, scheduler, bot
 
 from saweibot.data.models import BotConfigModel
 from saweibot.data.wrappers import BotConfigWrapper
-from saweibot.views import bot as bot_view
+
+from saweibot import views
 
 from saweibot.bussiness.task import check_watchlist, proxy_to_db, cache_group_admin
 
@@ -44,7 +45,7 @@ def setup(app: Sanic, orm_modules: dict):
     orm_modules["peon_entitles"] = ["saweibot.data.entities"]
 
     # register view route
-    app.blueprint(bot_view.bp)
+    views.register_route(app)
 
     # register scheudle task.
     check_watchlist.register_task(_scheduler)
