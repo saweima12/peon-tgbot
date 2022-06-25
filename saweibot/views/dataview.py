@@ -25,9 +25,7 @@ async def get_member_point(request: Request):
     if not chat_id:
         return response.json([])
     try:
-        print(chat_id)
         result = await ChatBehaviorRecord.filter(chat_id=chat_id)
-        print(result[0].chat_id)
         result = [ChatMemberPointSchema(
                         user_id=item.user_id, 
                         full_name=item.full_name,
