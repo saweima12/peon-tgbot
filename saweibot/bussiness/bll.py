@@ -129,12 +129,12 @@ async def _process_group_msg(helper: MessageHelepr):
         is_group_admin = await helper.is_group_admin()
 
         # is first send message?
-        if _model.msg_count < 1:
+        if not is_group_admin and _model.msg_count < 1:
             await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
 
             if helper.has_url():
                 await helper.msg.delete()
-                _delay_msg = helper.bot.send_message(helper.chat_id, FIRST_URL_MESSAGE)
+                _delay_msg = await helper.bot.send_message(helper.chat_id, FIRST_URL_MESSAGE)
                 logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
                 
         # not admin and not text, delete it.
@@ -160,8 +160,7 @@ async def _process_group_msg(helper: MessageHelepr):
 
     # wait delay event.
     if _delay_msg:
-        _delay_msg = await _delay_msg
-        await asyncio.sleep(5)
+        await asyncio.sleep(3)
         await _delay_msg.delete()
         
 
