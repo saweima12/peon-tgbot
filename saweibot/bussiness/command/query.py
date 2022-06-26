@@ -24,11 +24,11 @@ async def query_user(*params, helper: MessageHelepr):
         try :
             member = await helper.bot.get_chat_member(helper.chat_id, target_id)
             # send user's metion.
-            await helper.bot.send_message(QUERY_SUCCESS_TIPS.format(full_name=member.user.full_name,
+            await helper.bot.send_message(helper.chat_id, QUERY_SUCCESS_TIPS.format(full_name=member.user.full_name,
                                                                 user_id=member.user.id))
             logger.info(f"User {helper.user.full_name} query member_id {target_id}")
         except Exception as _e:
-            await helper.bot.send_message(QUERY_FAILED_TIPS.format(user_id=member.user.id))
+            await helper.bot.send_message(helper.chat_id, QUERY_FAILED_TIPS.format(user_id=member.user.id))
             logger.error(_e)
 
         
