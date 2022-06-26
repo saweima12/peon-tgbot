@@ -111,6 +111,7 @@ async def _process_group_msg(helper: MessageHelepr):
     if _tips_msg:
         await asyncio.sleep(30)
         await _tips_msg.delete()
+        return
 
     if not helper.is_text():
         return 
