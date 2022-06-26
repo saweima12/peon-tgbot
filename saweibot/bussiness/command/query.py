@@ -32,5 +32,4 @@ async def query_user(*params, helper: MessageHelepr):
             logger.error(_e)
 
         if _tips:
-            await asyncio.sleep(10)
             await _tips.delete()
