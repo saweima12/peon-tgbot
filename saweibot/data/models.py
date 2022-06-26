@@ -1,18 +1,12 @@
 from saweibot.common.extension import OrjsonBaseModel
-from typing import Any, Dict, List, Mapping
+from typing import Any, Dict, List
 
 from .base import Status
-
 
 class StatusMapModel(OrjsonBaseModel):
     status_map: Dict[str, Status] = {}
 
-class BotConfigModel(OrjsonBaseModel):
-    buffer_size: int = 50
-    maintainer: Dict[str, Status] = {}
-
 class ChatConfigModel(OrjsonBaseModel):
-    buffer_size: int = 50
     status: Status = Status.OK
     senior_count = 300
     adminstrators: List[str] = []

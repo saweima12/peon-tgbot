@@ -5,17 +5,12 @@ from saweibot.services.scheduler.struct import AppScheduler
 from saweibot.data.entities import PeonChatConfig
 from saweibot.data.wrappers.chat_config import ChatConfigWrapper
 from saweibot.meta import SERVICE_CODE
-from saweibot.data.wrappers import BotConfigWrapper, UserWhitelistWrapper, ChatWatcherUserWrapper
+from saweibot.data.wrappers import UserWhitelistWrapper, ChatWatcherUserWrapper
 
 def register_task(scheduler: AppScheduler):
 
     @scheduler.register_task("proxy_to_db", timedelta(minutes=10))
-    async def proxy_to_db_task():
-        # save bot config
-        bot_wrapper = BotConfigWrapper(SERVICE_CODE)
-        bot_config = await bot_wrapper.get_model()
-        await bot_wrapper.save_db(bot_config)
-        
+    async def proxy_to_db_task():      
         # save user whitelist.
         whitelist_wrapper = UserWhitelistWrapper(SERVICE_CODE)
         whitelist_model = await whitelist_wrapper.get_model()

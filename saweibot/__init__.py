@@ -16,9 +16,7 @@ env_config_path = os.environ.get("SAWEIBOT_CONFIG")
 if env_config_path and os.path.exists(env_config_path):
     app.update_config(env_config_path)
 
-orm_modules = {
-    "core_entities": ["saweibot.common.entities"]
-}
+orm_modules = {}
 
 # register services.
 registerer.setup(app, orm_modules)
