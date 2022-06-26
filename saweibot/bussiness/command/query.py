@@ -28,7 +28,7 @@ async def query_user(*params, helper: MessageHelepr):
                                                                 user_id=member.user.id), parse_mode='Markdown')
             logger.info(f"User {helper.user.full_name} query member_id {target_id}")
         except Exception as _e:
-            _tips = await helper.bot.send_message(helper.chat_id, QUERY_FAILED_TIPS.format(user_id=member.user.id), parse_mode='Markdown')
+            _tips = await helper.bot.send_message(helper.chat_id, QUERY_FAILED_TIPS.format(user_id=target_id), parse_mode='Markdown')
             logger.error(_e)
 
         if _tips:
