@@ -7,8 +7,8 @@ from saweibot.data.schema import AvailableChatSchema, ChatMemberPointSchema, Cha
 
 bp = Blueprint("dataview", url_prefix="/dataview")
 
-@bp.get("/avaliable_chat")
-async def get_avaliable_chat(request: Request):
+@bp.get("/chats")
+async def get_chats(request: Request):
     chats = await PeonChatConfig.filter(status="ok")
     _data = [AvailableChatSchema(
                     chat_id=chat.chat_id, 
@@ -16,6 +16,16 @@ async def get_avaliable_chat(request: Request):
                     config_json=chat.config_json
                 ).dict() for chat in chats]
 
+    return response.json(_data)
+
+@bp.get('/chats/<id>')
+async def get_chat_info(request: Request, id: str):
+    chat = await PeonChatConfig.get(chat_id=id)
+    _data = AvailableChatSchema(
+        chat_id=chat.chat_id,
+        full_name=chat.chat_name,
+        config_json=chat.config_json
+    ).dict()
     return response.json(_data)
 
 
