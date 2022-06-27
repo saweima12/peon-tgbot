@@ -1,5 +1,5 @@
-from sanic import Sanic
-
+from sanic import Sanic, response
+from sanic.exceptions import BadURL
 from saweibot import views
 from saweibot.services import redis, scheduler, bot
 from saweibot.bussiness.task import check_watchlist, proxy_to_db, cache_group_admin
@@ -32,3 +32,8 @@ def setup(app: Sanic, orm_modules: dict):
     check_watchlist.register_task(_scheduler)
     proxy_to_db.register_task(_scheduler)
     cache_group_admin.register_task(_scheduler)
+
+    # handle exception.
+    @app.exception(BadURL)
+    async def handle_badurl(request, exception):
+        return response.empty(status=500)
