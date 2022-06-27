@@ -105,12 +105,7 @@ async def _process_group_msg(helper: MessageHelepr):
     _record = await behavior_wrapper.get(helper.user_id)
 
     if _member.status != "ok":
-        _tips_msg = await _check_member_msg(helper, _record)
-
-    # watting to delete tips message.
-    if _tips_msg:
-        await _tips_msg.delete()
-        return
+        await _check_member_msg(helper, _record)
 
     if not helper.is_text():
         return 
@@ -129,36 +124,24 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
 
     # is first send message?
     if not is_group_admin and record.msg_count < 1:
-        await set_media_permission(helper.bot, helper.chat_id, helper.user_id, False)
 
         if helper.has_url():
             await asyncio.gather(
-                helper.msg.delete(),                               # delete message
-                record_deleted_message(helper.chat_id, helper.msg) # record to database.
+                helper.msg.delete(),                                                     # delete message
+                set_media_permission(helper.bot, helper.chat_id, helper.user_id, False), # Disable permission
+                record_deleted_message(helper.chat_id, helper.msg)                       # record to database.
             )
+            logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
             return None
-            # send tips message.
-            # _msg = FIRST_URL_TIPS.format(full_name=helper.user.full_name, 
-            #                             user_id=helper.user_id)
-            # _tips_msg = await helper.bot.send_message(helper.chat_id, _msg, parse_mode="Markdown")
-            # logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-            # return _tips_msg
-            
+
     # not admin and not text, delete it.
     if not is_group_admin and (not helper.is_text() or helper.is_forward()):
         await asyncio.gather(
             helper.msg.delete(),
+            set_media_permission(helper.bot, helper.chat_id, helper.user_id, False),
             record_deleted_message(helper.chat_id, helper.msg)
         )
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
         return None
-
-        # _config = await helper.chat_config_wrapper().get_model()
-        # send tips message.
-        # _msg_text = MEDIA_MESSAGE_TIPS.format(full_name=helper.user.full_name,
-        #                                         user_id=helper.user_id,
-        #                                         min_point=_config.senior_count)
-
-        # _tips_msg = await helper.bot.send_message(helper.chat_id, _msg_text, parse_mode="Markdown")
 
     return None
