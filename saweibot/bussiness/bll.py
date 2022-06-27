@@ -109,7 +109,6 @@ async def _process_group_msg(helper: MessageHelepr):
 
     # watting to delete tips message.
     if _tips_msg:
-        await asyncio.sleep(30)
         await _tips_msg.delete()
         return
 
@@ -136,13 +135,14 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
             await asyncio.gather(
                 helper.msg.delete(),                               # delete message
                 record_deleted_message(helper.chat_id, helper.msg) # record to database.
-            )                
+            )
+            return None
             # send tips message.
-            _msg = FIRST_URL_TIPS.format(full_name=helper.user.full_name, 
-                                        user_id=helper.user_id)
-            _tips_msg = await helper.bot.send_message(helper.chat_id, _msg, parse_mode="Markdown")
-            logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-            return _tips_msg
+            # _msg = FIRST_URL_TIPS.format(full_name=helper.user.full_name, 
+            #                             user_id=helper.user_id)
+            # _tips_msg = await helper.bot.send_message(helper.chat_id, _msg, parse_mode="Markdown")
+            # logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+            # return _tips_msg
             
     # not admin and not text, delete it.
     if not is_group_admin and (not helper.is_text() or helper.is_forward()):
@@ -150,14 +150,15 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
             helper.msg.delete(),
             record_deleted_message(helper.chat_id, helper.msg)
         )
-
-        _config = await helper.chat_config_wrapper().get_model()
-        # send tips message.
-        _msg_text = MEDIA_MESSAGE_TIPS.format(full_name=helper.user.full_name,
-                                                user_id=helper.user_id,
-                                                min_point=_config.senior_count)
-        _tips_msg = await helper.bot.send_message(helper.chat_id, _msg_text, parse_mode="Markdown")
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-        return _tips_msg
+        return None
+
+        # _config = await helper.chat_config_wrapper().get_model()
+        # send tips message.
+        # _msg_text = MEDIA_MESSAGE_TIPS.format(full_name=helper.user.full_name,
+        #                                         user_id=helper.user_id,
+        #                                         min_point=_config.senior_count)
+
+        # _tips_msg = await helper.bot.send_message(helper.chat_id, _msg_text, parse_mode="Markdown")
 
     return None
