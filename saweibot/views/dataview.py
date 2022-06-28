@@ -41,7 +41,7 @@ async def get_member_point(request: Request):
                         user_id=item.user_id, 
                         full_name=item.full_name,
                         point=item.msg_count,
-                        last_updated=item.update_time.strftime("%Y-%m-%d %H:%M:%S")
+                        last_updated=item.update_time.isoformat()
                     ).dict() for item in result]
         return response.json(result)
     except Exception:
@@ -65,7 +65,7 @@ async def get_deleted_message(request: Request):
         result = [ChatDeleteMessageSchema(
                         content_type=item.content_type,
                         raw=item.message_json,
-                        record_time=item.record_date.strftime("%Y-%m-%d %H:%M:%S")
+                        record_time=item.record_date.isoformat()
                     ).dict() for item in result]
 
         
