@@ -23,7 +23,12 @@ async def record_deleted_message(chat_id: str, data: Message):
     
     content_type = "forward" if data.is_forward() else data.content_type
 
+    _data = data.to_python()
+
+    _data['full_name'] = data.from_user.full_name
+    _data['content_type'] = data.content_type
+
     # write into database 
     await ChatDeletedMessage.create(chat_id=chat_id, 
                                 content_type=content_type,
-                                message_json=data.to_python())
+                                message_json=_data)
