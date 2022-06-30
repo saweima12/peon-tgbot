@@ -12,8 +12,8 @@ def setup(app: Sanic, orm_modules: dict):
     _redis = redis.register(app)
     _scheduler = scheduler.register(app)
     _bot = bot.register(app)
-
-    @app.after_server_start
+    
+    @app.main_process_start
     async def setup(app, loop):
         # register webhook.
         await bot.set_webhook(app, _bot)
