@@ -120,28 +120,28 @@ async def _process_group_msg(helper: MessageHelepr):
     await behavior_wrapper.set(helper.user_id, _record)
 
 async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordModel):
-    is_group_admin = await helper.is_group_admin()
 
-    # is first send message?
-    if not is_group_admin and record.msg_count < 1:
-
-        if helper.has_url():
-            await asyncio.gather(
-                helper.msg.delete(),                                                     # delete message
-                set_media_permission(helper.bot, helper.chat_id, helper.user_id, False), # Disable permission
-                record_deleted_message(helper.chat_id, helper.msg)                       # record to database.
-            )
-            logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-            return None
-
-    # not admin and not text, delete it.
-    if not is_group_admin and (not helper.is_text() or helper.is_forward()):
-        await asyncio.gather(
-            helper.msg.delete(),
-            set_media_permission(helper.bot, helper.chat_id, helper.user_id, False),
-            record_deleted_message(helper.chat_id, helper.msg)
-        )
-        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+    if await helper.is_group_admin():
         return None
+
+    _tasks = []
+
+    # user isn't admin and content is not text, delete it.
+    if not helper.is_text() or helper.is_forward():
+        _tasks.append(helper.msg.delete())
+        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
+
+        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+
+    # is first send message and has_url ?
+    if helper.has_url() and record.msg_count < 1:
+        _tasks.append(helper.msg.delete())
+        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
+        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+
+    
+    if _tasks or record.msg_count < 1:
+        _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
+        await asyncio.gather(*_tasks)
 
     return None
