@@ -77,6 +77,9 @@ async def get_deleted_message(request: Request):
         # process data
         for item in result:
             raw = item.message_json
+            # add field.
+            raw['user_id'] = raw['from']['id']
+
             # remove field.
             _check_remove('chat', raw)
             _check_remove('sticker', raw)
@@ -85,7 +88,8 @@ async def get_deleted_message(request: Request):
             _check_remove('audio', raw)
             _check_remove('video', raw)
             _check_remove('voice', raw)
-            
+            _check_remove('from', raw)
+
             _result.append(
                 ChatDeleteMessageSchema(
                     content_type=item.content_type,
