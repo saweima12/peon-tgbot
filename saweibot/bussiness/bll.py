@@ -131,14 +131,15 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     # user isn't admin and content is not text, delete it.
     if not helper.is_text() or helper.is_forward():
         _tasks.append(helper.msg.delete())
+        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
     
     # is first send message and has_url ?
     if helper.has_url() and record.msg_count < 1:
         _tasks.append(helper.msg.delete())
+        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         
 
     if len(_tasks) > 0 or record.msg_count < 1:
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
-        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         await asyncio.gather(*_tasks)
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
