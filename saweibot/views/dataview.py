@@ -62,23 +62,46 @@ async def get_deleted_message(request: Request):
     chat_id = request.args.get("chat")
 
     if not chat_id:
-        return response.json([])
+        return response.empty(400)
 
     start = (datetime.utcnow() - timedelta(days=14)).strftime("%Y-%m-%d")
 
     try:
+        print(chat_id)
         result = await ChatDeletedMessage.filter(chat_id=chat_id, record_date__gte=start)
-        if not result:
-            return response.json([])
-        
-        result = [ChatDeleteMessageSchema(
-                        content_type=item.content_type,
-                        raw=item.message_json,
-                        record_time=item.record_date.isoformat()
-                    ).dict() for item in result]
 
+        if not result:
+            return response.empty(404)
         
-        return response.json(result)
+        _result = []
+        # process data
+        for item in result:
+            raw = item.message_json
+            _check_remove('chat', raw)
+            _check_remove('sticker', raw)
+            _check_remove('photo', raw)
+            _check_remove('animation', raw)
+            _check_remove('audio', raw)
+            _check_remove('video', raw)
+            _check_remove('voice', raw)
+            _check_remove('from', raw)
+            
+            _result.append(
+                ChatDeleteMessageSchema(
+                    content_type=item.content_type,
+                    raw=raw,
+                    record_time=item.record_date.isoformat()
+                ).dict()
+            )
+            print(_result)
+        
+        return response.json(_result)
     except Exception:
         logger.error(traceback.format_exc())
-        return response.json([])
+        return response.empty(404)
+
+
+def _check_remove(key: str, obj: dict):
+    if key in obj:
+        obj.pop(key)
+    return obj
