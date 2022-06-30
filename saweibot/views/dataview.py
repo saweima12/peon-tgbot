@@ -20,7 +20,11 @@ async def get_chats(request: Request):
 
 @bp.get('/chats/<id>')
 async def get_chat_info(request: Request, id: str):
-    chat = await PeonChatConfig.get(chat_id=id)
+    chat = await PeonChatConfig.get_or_none(chat_id=id)
+
+    if not chat:
+        return response.empty(404)
+
     _data = AvailableChatSchema(
         chat_id=chat.chat_id,
         full_name=chat.chat_name,
@@ -34,9 +38,14 @@ async def get_member_point(request: Request):
     chat_id = request.args.get("chat")
 
     if not chat_id:
-        return response.json([])
+        return response.empty(400)
     try:
         result = await ChatBehaviorRecord.filter(chat_id=chat_id)
+
+        if not result:
+            return response.empty(404)
+
+
         result = [ChatMemberPointSchema(
                         user_id=item.user_id, 
                         full_name=item.full_name,
@@ -46,7 +55,7 @@ async def get_member_point(request: Request):
         return response.json(result)
     except Exception:
         logger.error(traceback.format_exc())
-        return response.json([])
+        return response.text(traceback.format_exc(), 500)
 
 @bp.get("/deleted_messages")
 async def get_deleted_message(request: Request):

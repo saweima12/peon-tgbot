@@ -1,7 +1,6 @@
 # coding=utf-8
 import asyncio
 from sanic.log import logger
-from aiogram import Bot
 from aiogram.types import Message
 
 from saweibot.data.entities import PeonChatConfig
@@ -87,8 +86,9 @@ async def _process_group_msg(helper: MessageHelepr):
     # check chat_id in whitelist.
     if not await helper.is_group_registered() :
         return
-    
-    _tips_msg = None
+
+    # open bot's session.
+    session = await helper.bot.get_session()
 
     # custom command handle
     if helper.is_text():
@@ -96,21 +96,23 @@ async def _process_group_msg(helper: MessageHelepr):
             await command_map.notify(helper.content, helper=helper)
             return
 
-    # get watch user.
+    # get watch user & record data..
     watcher_wrapper = helper.watcher_wrapper()
     _member = await watcher_wrapper.get(helper.user_id, helper.user.full_name)
 
-    # get record data.
     behavior_wrapper = helper.behavior_wrapper()
     _record = await behavior_wrapper.get(helper.user_id)
-
+    
+    # check message.
     if _member.status != "ok":
         await _check_member_msg(helper, _record)
 
+    # close bot session.
+    await session.close()
+        
     if not helper.is_text():
         return 
 
-    # must be more than two words
     if not len(helper.msg.text) >= 2:
         return
 
@@ -122,26 +124,21 @@ async def _process_group_msg(helper: MessageHelepr):
 async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordModel):
 
     if await helper.is_group_admin():
-        return None
+        return
 
     _tasks = []
 
     # user isn't admin and content is not text, delete it.
     if not helper.is_text() or helper.is_forward():
         _tasks.append(helper.msg.delete())
-        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
-
-        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-
+    
     # is first send message and has_url ?
     if helper.has_url() and record.msg_count < 1:
         _tasks.append(helper.msg.delete())
-        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
-        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+        
 
-    
-    if _tasks or record.msg_count < 1:
+    if len(_tasks) > 0 or record.msg_count < 1:
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
+        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         await asyncio.gather(*_tasks)
-
-    return None
+        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
