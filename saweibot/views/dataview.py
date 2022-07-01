@@ -97,7 +97,6 @@ async def get_deleted_message(request: Request):
                     record_time=item.record_date.isoformat()
                 ).dict()
             )
-            print(_result)
         
         return response.json(_result)
     except Exception:
