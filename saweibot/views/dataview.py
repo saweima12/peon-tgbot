@@ -67,7 +67,6 @@ async def get_deleted_message(request: Request):
     start = (datetime.utcnow() - timedelta(days=14)).strftime("%Y-%m-%d")
 
     try:
-        print(chat_id)
         result = await ChatDeletedMessage.filter(chat_id=chat_id, record_date__gte=start)
 
         if not result:
