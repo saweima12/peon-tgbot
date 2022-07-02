@@ -110,7 +110,7 @@ async def _process_group_msg(helper: MessageHelepr):
     # close bot session.
     await session.close()
         
-    if not helper.is_text():
+    if not helper.is_text() or helper.is_forward():
         return 
 
     if not len(helper.msg.text) >= 2:
