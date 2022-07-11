@@ -149,7 +149,7 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
         _blacklist = await url_blacklist_wrapper.get_model()
         # check pattern & url
         for pattern in _blacklist.pattern_list:
-            _ptn = r".+({})*".format(pattern)
+            _ptn = r"({})".format(pattern)
             for url in urls:
                 if re.match(_ptn, url):
                     need_delete = True
