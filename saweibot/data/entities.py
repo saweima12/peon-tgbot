@@ -1,3 +1,4 @@
+from operator import index
 from attr import field
 from tortoise import fields
 from tortoise.models import Model
@@ -54,3 +55,9 @@ class ChatDeletedMessage(Model):
 
     class Meta:
         table = "peon_deleted_message"
+
+
+class ChatUrlBlackList(Model):
+
+    chat_id = fields.CharField(max_length=40, index=True)
+    pattern_list = fields.JSONField()

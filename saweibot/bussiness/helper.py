@@ -1,6 +1,8 @@
+from re import L
 from aiogram.types import Message, ChatType
 
 from saweibot.data.wrappers.behavior_record import BehaviorRecordWrapper
+from saweibot.data.wrappers.url_blacklist import UrlBlackListWrapper
 from saweibot.data.wrappers.watch_user import ChatWatcherUserWrapper
 
 from saweibot.data.base import Status
@@ -89,6 +91,7 @@ class MessageHelepr():
         if self.is_text():
             return has_url(self.msg.text)
         return False
+    
 
     async def is_group_admin(self) -> bool:
         wrapper = self.chat_config_wrapper()
@@ -135,6 +138,11 @@ class MessageHelepr():
     def watcher_wrapper(self):
         return ChatWatcherUserWrapper(self.bot_id, self.chat_id)
 
+    def url_blacklist_wrapper(self):
+        return UrlBlackListWrapper(self.bot_id, self.chat_id)
+
     async def chat_message_wrapper(self):
         config = await self.chat_config_wrapper().get_model()
         return ChatMessageWrapper(self.bot_id, config.buffer_size, self.chat_id)
+
+    

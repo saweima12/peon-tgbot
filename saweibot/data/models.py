@@ -27,3 +27,6 @@ class ChatMessageModel(OrjsonBaseModel):
 class ChatBehaviorRecordModel(OrjsonBaseModel):
     full_name: str = ""
     msg_count: int = 0
+
+class ChatUrlBlackListModel(OrjsonBaseModel):
+    pattern_list: List[str] = []

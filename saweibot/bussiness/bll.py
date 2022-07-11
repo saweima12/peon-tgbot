@@ -1,4 +1,5 @@
 # coding=utf-8
+import re
 import asyncio
 from sanic.log import logger
 from aiogram.types import Message
@@ -127,19 +128,37 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
         return
 
     _tasks = []
+    need_delete = False
 
     # user isn't admin and content is not text, delete it.
     if not helper.is_text() or helper.is_forward():
-        _tasks.append(helper.msg.delete())
-        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
-        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-    
+        need_delete = True
+
     # is first send message and has_url ?
-    if helper.has_url() and record.msg_count < 1:
+    if helper.has_url():
+
+        url_blacklist_wrapper = helper.url_blacklist_wrapper()
+
+        if record.msg_count < 1:
+            need_delete = True
+
+        # get entities url from message.
+        urls = [ entity.get_text() for entity in helper.msg.entities if entity.type == "url"]
+        # get blacklist from proxy.
+        _blacklist = await url_blacklist_wrapper.get_model()
+        # check pattern & url
+        for pattern in _blacklist.pattern_list:
+            _ptn = re.compile(pattern)
+            for url in urls:
+                if re.match(_ptn, url):
+                    need_delete = True
+                    break
+
+    if need_delete:
         _tasks.append(helper.msg.delete())
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-        
+
 
     if len(_tasks) > 0 or record.msg_count < 1:
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
