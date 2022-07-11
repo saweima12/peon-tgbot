@@ -81,6 +81,11 @@ class MessageHelepr():
         return self.msg.is_forward()
 
     def has_url(self) -> bool:
+        if self.msg.entities:
+            url_entites = [entity for entity in self.msg.entities if entity.type == "url"]
+            if len(url_entites) > 0:
+                return True
+
         if self.is_text():
             return has_url(self.msg.text)
         return False
