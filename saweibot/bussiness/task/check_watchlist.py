@@ -40,6 +40,9 @@ def register_task(scheduler: AppScheduler):
                 await watch_wrapper.save_db(member_id, data)
                 await behavior_wrapper.save_db(member_id, record)
                 # post telegram api.
+                if member_id in config.adminstrators:
+                    return
+
                 await set_media_permission(bot, chat.chat_id, member_id, True)
                 logger.info(f"set [{record.full_name}]'s member permission")
 

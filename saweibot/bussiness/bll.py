@@ -142,13 +142,14 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
         if record.msg_count < 1:
             need_delete = True
 
+        
         # get entities url from message.
-        urls = [ entity.get_text() for entity in helper.msg.entities if entity.type == "url"]
+        urls = [ entity.get_text(helper.msg.text) for entity in helper.msg.entities if entity.type == "url"]
         # get blacklist from proxy.
         _blacklist = await url_blacklist_wrapper.get_model()
         # check pattern & url
         for pattern in _blacklist.pattern_list:
-            _ptn = re.compile(pattern)
+            _ptn = r".+({})*".format(pattern)
             for url in urls:
                 if re.match(_ptn, url):
                     need_delete = True

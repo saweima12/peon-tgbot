@@ -2,8 +2,10 @@ from saweibot.common.wrapper import StorageJsonModelWrapper
 from ..entities import ChatUrlBlackList
 from ..models import ChatUrlBlackListModel
 
-class UrlBlackListWrapper(StorageJsonModelWrapper[ChatUrlBlackListModel]):
+class ChatUrlBlackListWrapper(StorageJsonModelWrapper[ChatUrlBlackListModel]):
     
+    __model__ = ChatUrlBlackListModel
+
     def __init__(self, bot_id: str, chat_id: str):
         self.bot_id = bot_id
         self.chat_id = chat_id

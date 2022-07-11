@@ -4,3 +4,4 @@ from .deleted_message import DeletedMessageWrapper
 from .user_whitelist import UserWhitelistWrapper
 from .watch_user import ChatWatcherUserWrapper
 from .behavior_record import BehaviorRecordWrapper
+from .url_blacklist import ChatUrlBlackListWrapper

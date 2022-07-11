@@ -15,8 +15,12 @@ def register_task(scheduler: AppScheduler):
         chats = await PeonChatConfig.filter(status="ok")
 
         bot = get_bot()
+        session = await bot.get_new_session()
         for chat in chats:
+
             admin_list = await bot.get_chat_administrators(chat.chat_id)
+
+
             admin_id_set = set([str(item.user.id) for item in admin_list])
             config_wrapper =  ChatConfigWrapper(SERVICE_CODE, chat.chat_id)
 
@@ -24,3 +28,5 @@ def register_task(scheduler: AppScheduler):
             _model.adminstrators = list(admin_id_set)
 
             await config_wrapper.save_proxy(_model)            
+
+        await session.close()

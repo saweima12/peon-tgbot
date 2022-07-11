@@ -5,7 +5,7 @@ from saweibot.services.scheduler.struct import AppScheduler
 from saweibot.data.entities import PeonChatConfig
 from saweibot.data.wrappers.chat_config import ChatConfigWrapper
 from saweibot.meta import SERVICE_CODE
-from saweibot.data.wrappers import UserWhitelistWrapper, ChatWatcherUserWrapper
+from saweibot.data.wrappers import UserWhitelistWrapper, ChatWatcherUserWrapper, ChatUrlBlackListWrapper
 
 def register_task(scheduler: AppScheduler):
 
@@ -29,3 +29,8 @@ def register_task(scheduler: AppScheduler):
             behavior_wrapper = BehaviorRecordWrapper(SERVICE_CODE, chat.chat_id)
             await behavior_wrapper.save_all_db()
             await behavior_wrapper.delete_proxy() # save finished, remove record map.
+
+            # save url blacklist
+            url_blacklist_wrapper = ChatUrlBlackListWrapper(SERVICE_CODE, chat.chat_id)
+            url_blacklist = await url_blacklist_wrapper.get_model()
+            await url_blacklist_wrapper.save_db(url_blacklist)
