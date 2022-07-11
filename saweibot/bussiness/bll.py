@@ -104,15 +104,20 @@ async def _process_group_msg(helper: MessageHelepr):
     behavior_wrapper = helper.behavior_wrapper()
     _record = await behavior_wrapper.get(helper.user_id)
     
+
+    _is_deleted = False
     # check message.
     if _member.status != "ok":
-        await _check_member_msg(helper, _record)
+        _is_deleted = await _check_member_msg(helper, _record)
 
     # close bot session.
     await session.close()
         
     if not helper.is_text() or helper.is_forward():
         return 
+
+    if _is_deleted:
+        return
 
     if not len(helper.msg.text) >= 2:
         return
@@ -125,7 +130,7 @@ async def _process_group_msg(helper: MessageHelepr):
 async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordModel):
 
     if await helper.is_group_admin():
-        return
+        return True
 
     _tasks = []
     need_delete = False
@@ -141,7 +146,6 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
 
         if record.msg_count < 1:
             need_delete = True
-
         
         # get entities url from message.
         urls = [ entity.get_text(helper.msg.text) for entity in helper.msg.entities if entity.type == "url"]
@@ -149,7 +153,7 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
         _blacklist = await url_blacklist_wrapper.get_model()
         # check pattern & url
         for pattern in _blacklist.pattern_list:
-            _ptn = r"({})".format(pattern)
+            _ptn = r".+({}).+".format(pattern)
             for url in urls:
                 if re.match(_ptn, url):
                     need_delete = True
@@ -160,8 +164,9 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
 
-
     if len(_tasks) > 0 or record.msg_count < 1:
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
         await asyncio.gather(*_tasks)
+
+    return need_delete
         
