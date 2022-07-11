@@ -9,4 +9,7 @@ MEDIA_MESSAGE_TIPS = "[@{full_name}](tg://user?id={user_id}) 發言點數低於 
 MEMBER_LINK = "[@{full_name}](tg://user?id={user_id})"
 
 QUERY_SUCCESS_TIPS = "查詢成功，共計 {count} 筆。\n {content}"
-QUERY_FAILED_TIPS="查詢失敗，找不到對象。"
+QUERY_FAILED_TIPS = "查詢失敗，找不到對象。"
+
+DELETED_COUNT_TIPS = "今日刪除訊息共計 {count} 筆 \n詳細資訊：{url}"
+DELETED_PAGE = "https://tassis.github.io/chats/{chat_id}/deletedmsg"

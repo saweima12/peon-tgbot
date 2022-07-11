@@ -1,4 +1,5 @@
-version: '3.8'
+version: '3.7'
+
 services:
   runtime:
     container_name: "saweibot"
@@ -9,4 +10,4 @@ services:
       - 8000:8000
     environment:
       - SAWEIBOT_CONFIG=/app/env.py
-    command: "sanic saweibot:app -H 0.0.0.0"
+    command: "sanic saweibot:app -H 0.0.0.0 --fast"

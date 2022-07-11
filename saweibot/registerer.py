@@ -34,6 +34,6 @@ def setup(app: Sanic, orm_modules: dict):
     cache_group_admin.register_task(_scheduler)
 
     # handle exception.
-    @app.exception(BadURL)
+    @app.exception([BadURL, Exception])
     async def handle_badurl(request, exception):
         return response.empty(status=500)
