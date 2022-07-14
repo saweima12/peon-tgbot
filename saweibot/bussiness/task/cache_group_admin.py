@@ -15,7 +15,7 @@ def register_task(scheduler: AppScheduler):
         chats = await PeonChatConfig.filter(status="ok")
 
         bot = get_bot()
-        session = await bot.get_new_session()
+        session = await bot.get_session()
         for chat in chats:
 
             admin_list = await bot.get_chat_administrators(chat.chat_id)
