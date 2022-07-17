@@ -88,14 +88,10 @@ async def _process_group_msg(helper: MessageHelepr):
     if not await helper.is_group_registered() :
         return
 
-    # open bot's session.
-    session = await helper.bot.get_session()
-
     # custom command handle
     if helper.is_text():
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
-            await session.close()
             return
 
     # get watch user & record data..
@@ -110,9 +106,6 @@ async def _process_group_msg(helper: MessageHelepr):
     # check message.
     if _member.status != "ok":
         _is_deleted = await _check_member_msg(helper, _record)
-
-    # close bot session.
-    await session.close()
         
     if not helper.is_text() or helper.is_forward():
         return 

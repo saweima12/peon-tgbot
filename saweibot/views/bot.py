@@ -44,13 +44,15 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     logger.debug(f"Update: {request.json}")    
 
     _update = Update(**request.json)
+    session = await _bot.get_session()
     try:
         await _dp.process_update(_update)
+        await session.close()
         return response.empty(status=200)
     except Exception as _e:
         logger.error(_e)
-
-    return response.empty(status=400)
+        await session.close()
+        return response.empty(status=400)
 
 
 @bp.get("/<token:str>/send_deleted")
