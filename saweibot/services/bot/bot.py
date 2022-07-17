@@ -15,7 +15,7 @@ DP_CODE = f"{SERVICE_CODE}_dp"
 
 def get_bot() -> Bot:
     app = Sanic.get_app()
-    return getattr(app.ctx, SERVICE_CODE)
+    return Bot(token=app.config.TGBOT_PEON_TOKEN)
 
 def get_dp() -> Dispatcher:
     app = Sanic.get_app()
@@ -49,10 +49,8 @@ def setup(app: Sanic) -> Bot:
         except Exception as _e:
             logger.error(traceback.format_exc())
 
-    # Attach to ctx
-    setattr(app.ctx, SERVICE_CODE, bot)
+    # Attach dispatcher to ctx
     setattr(app.ctx, DP_CODE, dp)
-    logger.info(f"Register bot: {SERVICE_CODE}")
     logger.info(f"Register Dispatcher: {DP_CODE}")
     return bot
 
