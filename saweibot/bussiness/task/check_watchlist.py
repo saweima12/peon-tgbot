@@ -21,6 +21,7 @@ def register_task(scheduler: AppScheduler):
         # get all watch chat.
         chats = await PeonChatConfig.filter(status="ok")
         bot = get_bot()
+        session = await bot.get_session()
 
         for chat in chats:
             # traversal all watch group.
@@ -81,4 +82,6 @@ def register_task(scheduler: AppScheduler):
             # task finished, remove watchlist.
             logger.debug("remove proxy.")
             await watch_wrapper.delete_proxy()
-                
+
+        #  close aiohttp session.
+        await session.close()

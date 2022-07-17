@@ -95,6 +95,7 @@ async def _process_group_msg(helper: MessageHelepr):
     if helper.is_text():
         if command_map.is_avaliable(helper.content):
             await command_map.notify(helper.content, helper=helper)
+            await session.close()
             return
 
     # get watch user & record data..
