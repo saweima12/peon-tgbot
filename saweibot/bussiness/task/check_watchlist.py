@@ -81,3 +81,4 @@ def register_task(scheduler: AppScheduler):
             # task finished, remove watchlist.
             logger.debug("remove proxy.")
             await watch_wrapper.delete_proxy()
+            await bot.session.close()
