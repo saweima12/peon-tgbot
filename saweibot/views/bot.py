@@ -35,6 +35,8 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     if _bot._token != token:
         return response.empty(status=404)
 
+    session = await _bot.get_session()
+
     # dispatch update event.
     _dp = bot.get_dp()
 
@@ -47,11 +49,11 @@ async def peon(request: Request, token: str) -> HTTPResponse:
 
     try:
         await _dp.process_update(_update)
-        await _bot.session.close()
+        await session.close()
         return response.empty(status=200)
     except Exception as _e:
         logger.error(_e)
-        await _bot.session.close()
+        await session.close()
         return response.empty(status=400)
 
 
