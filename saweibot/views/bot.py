@@ -32,26 +32,24 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     """
     # check token is correct.
     _bot = bot.get_bot()
+    # set currenct bot.
+    bot.set_current(_bot)
+
     if _bot._token != token:
         return response.empty(status=404)
-
-    # dispatch update event.
+    # get event dispatcher
     _dp = bot.get_dp()
-
-    # set currenct bot.
-    bot.set_current()
 
     logger.debug(f"Update: {request.json}")    
 
     _update = Update(**request.json)
-    session = await _bot.get_session()
     try:
         await _dp.process_update(_update)
-        await session.close()
+        await _bot.close()
         return response.empty(status=200)
     except Exception as _e:
         logger.error(_e)
-        await session.close()
+        await _bot.close()
         return response.empty(status=400)
 
 

@@ -54,10 +54,9 @@ def setup(app: Sanic) -> Bot:
     logger.info(f"Register Dispatcher: {DP_CODE}")
     return bot
 
-def set_current():
-    _bot = get_bot()
-    Bot.set_current(_bot)
-    return _bot
+def set_current(bot: Bot):
+    Bot.set_current(bot)
+    return bot
 
 async def set_webhook(app: Sanic, bot: Bot):
     # register webhook uri.
