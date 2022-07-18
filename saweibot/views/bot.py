@@ -30,28 +30,28 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     :param reuqest [sanic.Reqeust]
     :param token [str] -> Telegram.bot_token
     """
-    # check token is correct.
-    _bot = bot.get_bot()
     # set currenct bot.
+    _bot = bot.get_bot()
     bot.set_current(_bot)
-
+    # check token is correct.
     if _bot._token != token:
         return response.empty(status=404)
     # get event dispatcher
-
     _dp = bot.get_dp()
-
-    logger.debug(f"Update: {request.json}")    
-
+    logger.debug(f"Update: {request.json}")
     _update = Update(**request.json)
+
+    # get session
+    session = await _bot.get_session()
     try:
         await _dp.process_update(_update)
-        await _bot.close()
+        await session.close()
         return response.empty(status=200)
     except Exception as _e:
         logger.error(_e)
-        await _bot.close()
-        return response.empty(status=400)
+        await session.close()
+        return response.empty(status=200)
+
 
 
 @bp.get("/<token:str>/send_deleted")
