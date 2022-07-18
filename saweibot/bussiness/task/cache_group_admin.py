@@ -28,5 +28,5 @@ def register_task(scheduler: AppScheduler):
             _model.adminstrators = list(admin_id_set)
 
             await config_wrapper.save_proxy(_model)            
-
+        
         await session.close()

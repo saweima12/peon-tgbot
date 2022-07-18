@@ -38,6 +38,7 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     if _bot._token != token:
         return response.empty(status=404)
     # get event dispatcher
+
     _dp = bot.get_dp()
 
     logger.debug(f"Update: {request.json}")    
@@ -65,7 +66,7 @@ async def send_deleted_tips(request: Request, token: str):
 
     now = dt.datetime.combine(dt.datetime.utcnow(), dt.time(15, 0))
     start = now - dt.timedelta(days=1)
-
+    
     for chat in chats:
 
         chat_id = chat.chat_id
@@ -76,4 +77,7 @@ async def send_deleted_tips(request: Request, token: str):
         _text = DELETED_COUNT_TIPS.format(count=str(msg_count), url=_page_url)
         await _bot.send_message(chat_id, _text, parse_mode='Markdown')
     
+
+    await _bot.session.close()
+
     return response.empty(200)
