@@ -67,6 +67,8 @@ async def send_deleted_tips(request: Request, token: str):
     now = dt.datetime.combine(dt.datetime.utcnow(), dt.time(15, 0))
     start = now - dt.timedelta(days=1)
     
+    session = await _bot.get_session()
+
     for chat in chats:
 
         chat_id = chat.chat_id
@@ -78,6 +80,6 @@ async def send_deleted_tips(request: Request, token: str):
         await _bot.send_message(chat_id, _text, parse_mode='Markdown')
     
 
-    await _bot.session.close()
+    await session.close()
 
     return response.empty(200)
