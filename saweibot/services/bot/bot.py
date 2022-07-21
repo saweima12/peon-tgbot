@@ -66,11 +66,6 @@ async def set_webhook(app: Sanic, bot: Bot):
     await bot.set_webhook(webhook_uri)
 
 async def dispose(app: Sanic):
-    if hasattr(app.ctx, SERVICE_CODE):
-        bot: Bot = getattr(app.ctx, SERVICE_CODE)
-        await bot.delete_webhook()
-        logger.info(f"Close Bot: {SERVICE_CODE}")
-
     if hasattr(app.ctx, DP_CODE):
         dp: Dispatcher = getattr(app.ctx, DP_CODE)
         await dp.reset_webhook()
