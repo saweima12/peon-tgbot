@@ -30,23 +30,19 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     :param reuqest [sanic.Reqeust]
     :param token [str] -> Telegram.bot_token
     """
-    # check token is correct.
+    # set currenct bot.
     _bot = bot.get_bot()
+    bot.set_current(_bot)
+    # check token is correct.
     if _bot._token != token:
         return response.empty(status=404)
-
-    session = await _bot.get_session()
-
-    # dispatch update event.
+    # get event dispatcher
     _dp = bot.get_dp()
-
-    # set currenct bot.
-    bot.set_current()
-
-    logger.debug(f"Update: {request.json}")    
-
+    logger.debug(f"Update: {request.json}")
     _update = Update(**request.json)
 
+    # get session
+    session = await _bot.get_session()
     try:
         await _dp.process_update(_update)
         await session.close()
@@ -54,7 +50,8 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     except Exception as _e:
         logger.error(_e)
         await session.close()
-        return response.empty(status=400)
+        return response.empty(status=200)
+
 
 
 @bp.get("/<token:str>/send_deleted")
@@ -71,6 +68,7 @@ async def send_deleted_tips(request: Request, token: str):
     start = now - dt.timedelta(days=1)
 
     session = await _bot.get_session()
+
     for chat in chats:
 
         chat_id = chat.chat_id
@@ -83,4 +81,5 @@ async def send_deleted_tips(request: Request, token: str):
     
 
     await session.close()
+
     return response.empty(200)
