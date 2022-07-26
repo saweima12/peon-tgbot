@@ -4,7 +4,7 @@ from sanic.log import logger
 from aiogram.types import Update
 
 from saweibot.text import DELETED_COUNT_TIPS, DELETED_PAGE
-from saweibot.data.entities import ChatDeletedMessage, PeonChatConfig
+from saweibot.data.entities import ChatDeletedMessage, PeonChatConfig, ChatBehaviorRecord, ChatWatchUser
 from saweibot.services import bot
 
 bp = Blueprint("peon_bot", url_prefix="/peon")
@@ -64,21 +64,35 @@ async def send_deleted_tips(request: Request, token: str):
 
     chats = await PeonChatConfig.filter(status="ok")
 
+    # define datetime parameter.
     now = dt.datetime.combine(dt.datetime.utcnow(), dt.time(15, 0))
-    start = now - dt.timedelta(days=1)
+    start_time = now - dt.timedelta(days=1)
+    check_time = now - dt.timedelta(days=14)
 
+    # get bot clientsession.
     session = await _bot.get_session()
 
     for chat in chats:
-
+        # get chat's deleted chat message.
         chat_id = chat.chat_id
-
-        msg_count = await ChatDeletedMessage.filter(chat_id=chat_id, record_date__gte=start).count()
+        msg_count = await ChatDeletedMessage.filter(chat_id=chat_id, record_date__gte=start_time).count()
         
+        # combine message
         _page_url = DELETED_PAGE.format(chat_id=chat_id)
         _text = DELETED_COUNT_TIPS.format(count=str(msg_count), url=_page_url)
+        # #  send message.
         await _bot.send_message(chat_id, _text, parse_mode='Markdown')
-    
+
+        # find need to delete record
+        checked_record = await ChatBehaviorRecord.filter(chat_id=chat_id, 
+                                                        update_time__lte=check_time,
+                                                        msg_count__lte=20)
+        need_delete_user_list = [ record.user_id for record in checked_record ]
+        if need_delete_user_list:
+            await ChatBehaviorRecord.filter(chat_id=chat_id, user_id__in=need_delete_user_list).delete()
+            await ChatWatchUser.filter(chat_id=chat_id, user_id__in=need_delete_user_list).delete()
+
+        
 
     await session.close()
 
