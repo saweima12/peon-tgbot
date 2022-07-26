@@ -82,7 +82,7 @@ async def send_deleted_tips(request: Request, token: str):
         _text = DELETED_COUNT_TIPS.format(count=str(msg_count), url=_page_url)
         # #  send message.
         await _bot.send_message(chat_id, _text, parse_mode='Markdown')
-
+        
         # find need to delete record
         checked_record = await ChatBehaviorRecord.filter(chat_id=chat_id, 
                                                         update_time__lte=check_time,
@@ -91,6 +91,9 @@ async def send_deleted_tips(request: Request, token: str):
         if need_delete_user_list:
             await ChatBehaviorRecord.filter(chat_id=chat_id, user_id__in=need_delete_user_list).delete()
             await ChatWatchUser.filter(chat_id=chat_id, user_id__in=need_delete_user_list).delete()
+
+        # delete older than 14 deleted_message
+        await ChatDeletedMessage.filter(chat_id=chat_id, record_date__lte=check_time).delete()
 
         
 
