@@ -166,7 +166,6 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     ptn = r".+bot$"
     for mention in mentions:
         _id = (mention.get_text(helper.msg.text))
-        print(_id)
         if re.match(ptn, _id, re.I):
             return True
 
