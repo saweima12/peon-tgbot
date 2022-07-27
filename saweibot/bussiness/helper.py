@@ -1,5 +1,6 @@
 from re import L
-from aiogram.types import Message, ChatType
+from typing import List
+from aiogram.types import Message, MessageEntity, ChatType
 
 from saweibot.data.wrappers.behavior_record import BehaviorRecordWrapper
 from saweibot.data.wrappers.url_blacklist import ChatUrlBlackListWrapper
@@ -92,7 +93,14 @@ class MessageHelepr():
             return has_url(self.msg.text)
         return False
     
+    def get_mentions(self) -> List[MessageEntity]:
+        if self.msg.entities:
+            mention_entites = [entity for entity in self.msg.entities if entity.type == "mention"]
+            if len(mention_entites) > 0:
+                return mention_entites
+        return None
 
+        
     async def is_group_admin(self) -> bool:
         wrapper = self.chat_config_wrapper()
         config = await wrapper.get_model()

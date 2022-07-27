@@ -102,16 +102,26 @@ async def _process_group_msg(helper: MessageHelepr):
     _record = await behavior_wrapper.get(helper.user_id)
     
 
-    _is_deleted = False
+    need_delete = False
     # check message.
     if _member.status != "ok":
-        _is_deleted = await _check_member_msg(helper, _record)
+        need_delete = await _check_member_msg(helper, _record)
         
     if not helper.is_text() or helper.is_forward():
         return 
+    
+    # process task
+    _tasks = []
 
-    if _is_deleted:
-        return
+    if need_delete:
+        _tasks.append(helper.msg.delete())
+        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
+        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
+
+
+    if len(_tasks) > 0 or _record.msg_count < 1:
+        _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
+        await asyncio.gather(*_tasks)
 
     if not len(helper.msg.text) >= 2:
         return
@@ -126,20 +136,17 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     if await helper.is_group_admin():
         return True
 
-    _tasks = []
-    need_delete = False
-
     # user isn't admin and content is not text, delete it.
     if not helper.is_text() or helper.is_forward():
-        need_delete = True
+        return True
 
     # is first send message and has_url ?
     if helper.has_url():
-
+        # get url blacklist wrapper.
         url_blacklist_wrapper = helper.url_blacklist_wrapper()
 
         if record.msg_count < 1:
-            need_delete = True
+            return True
         
         # get entities url from message.
         urls = [ entity.get_text(helper.msg.text) for entity in helper.msg.entities if entity.type == "url"]
@@ -150,17 +157,15 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
             _ptn = r".+({}).+".format(pattern)
             for url in urls:
                 if re.match(_ptn, url):
-                    need_delete = True
-                    break
+                    return True
+    
+    if helper.msg.via_bot:
+        return True
+    
+    mentions = helper.get_mentions()
+    for mention in mentions:
+        if mention.user.is_bot:
+            return True
 
-    if need_delete:
-        _tasks.append(helper.msg.delete())
-        _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
-        logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-
-    if len(_tasks) > 0 or record.msg_count < 1:
-        _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
-        await asyncio.gather(*_tasks)
-
-    return need_delete
+    return False
         
