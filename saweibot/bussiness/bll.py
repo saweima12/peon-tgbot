@@ -106,9 +106,6 @@ async def _process_group_msg(helper: MessageHelepr):
     # check message.
     if _member.status != "ok":
         need_delete = await _check_member_msg(helper, _record)
-        
-    if not helper.is_text() or helper.is_forward():
-        return 
     
     # process task
     _tasks = []
@@ -122,6 +119,9 @@ async def _process_group_msg(helper: MessageHelepr):
     if len(_tasks) > 0 or _record.msg_count < 1:
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
         await asyncio.gather(*_tasks)
+
+    if not helper.is_text() or helper.is_forward():
+        return 
 
     if not len(helper.msg.text) >= 2:
         return
@@ -162,5 +162,15 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     if helper.msg.via_bot:
         return True
     
+    mentions = helper.get_mentions()
+    for mention in mentions:
+        _id = (mention.get_text(helper.msg.text))
+        await helper.msg.reply(f"[{_id}](tg://user?id={_id.replace('@', '') })", parse_mode="Markdown")
+        
+        print(mention)
+        if mention.user:
+            if mention.user.is_bot:
+                return True
+
     return False
         
