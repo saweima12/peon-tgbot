@@ -162,15 +162,5 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     if helper.msg.via_bot:
         return True
     
-    mentions = helper.get_mentions()
-    for mention in mentions:
-        _id = (mention.get_text(helper.msg.text))
-        await helper.msg.reply(f"[{_id}](tg://user?id={_id.replace('@', '') })", parse_mode="Markdown")
-        
-        print(mention)
-        if mention.user:
-            if mention.user.is_bot:
-                return True
-
     return False
         
