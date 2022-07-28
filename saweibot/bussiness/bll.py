@@ -115,10 +115,10 @@ async def _process_group_msg(helper: MessageHelepr):
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
 
-
     if len(_tasks) > 0 or _record.msg_count < 1:
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
         await asyncio.gather(*_tasks)
+        return
 
     if not helper.is_text() or helper.is_forward():
         return 
@@ -134,7 +134,7 @@ async def _process_group_msg(helper: MessageHelepr):
 async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordModel):
 
     if await helper.is_group_admin():
-        return True
+        return False
 
     # user isn't admin and content is not text, delete it.
     if not helper.is_text() or helper.is_forward():
@@ -164,10 +164,12 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     
     mentions = helper.get_mentions()
     ptn = r".+bot$"
-    for mention in mentions:
-        _id = (mention.get_text(helper.msg.text))
-        if re.match(ptn, _id, re.I):
-            return True
+
+    if mentions:
+        for mention in mentions:
+            _id = (mention.get_text(helper.msg.text))
+            if re.match(ptn, _id, re.I):
+                return True
 
     return False
         
