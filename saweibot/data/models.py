@@ -9,6 +9,7 @@ class StatusMapModel(OrjsonBaseModel):
 class ChatConfigModel(OrjsonBaseModel):
     status: Status = Status.OK
     senior_count = 300
+    check_lowest_count = 20
     adminstrators: List[str] = []
 
 class ChatWatchUserModel(OrjsonBaseModel):

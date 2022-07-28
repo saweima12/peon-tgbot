@@ -3,8 +3,10 @@ from sanic import HTTPResponse, Request, Blueprint, response, text
 from sanic.log import logger
 from aiogram.types import Update
 
+from saweibot.meta import SERVICE_CODE
 from saweibot.text import DELETED_COUNT_TIPS, DELETED_PAGE
 from saweibot.data.entities import ChatDeletedMessage, PeonChatConfig, ChatBehaviorRecord, ChatWatchUser
+from saweibot.data.wrappers import ChatConfigWrapper
 from saweibot.services import bot
 
 bp = Blueprint("peon_bot", url_prefix="/peon")
@@ -73,20 +75,25 @@ async def send_deleted_tips(request: Request, token: str):
     session = await _bot.get_session()
 
     for chat in chats:
-        # get chat's deleted chat message.
+        # get chat's deleted message.
         chat_id = chat.chat_id
         msg_count = await ChatDeletedMessage.filter(chat_id=chat_id, record_date__gte=start_time).count()
+        
+        # get config
+        config_wrapper = ChatConfigWrapper(SERVICE_CODE, chat_id)
+        config = await config_wrapper.get_model()
         
         # combine message
         _page_url = DELETED_PAGE.format(chat_id=chat_id)
         _text = DELETED_COUNT_TIPS.format(count=str(msg_count), url=_page_url)
-        # #  send message.
+
+        # send message.
         await _bot.send_message(chat_id, _text, parse_mode='Markdown')
         
         # find need to delete record
         checked_record = await ChatBehaviorRecord.filter(chat_id=chat_id, 
                                                         update_time__lte=check_time,
-                                                        msg_count__lte=20)
+                                                        msg_count__lte=config.check_lowest_count)
         need_delete_user_list = [ record.user_id for record in checked_record ]
         if need_delete_user_list:
             await ChatBehaviorRecord.filter(chat_id=chat_id, user_id__in=need_delete_user_list).delete()
