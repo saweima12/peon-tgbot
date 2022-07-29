@@ -119,7 +119,7 @@ async def _process_group_msg(helper: MessageHelepr):
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
 
-    if (len(_tasks) > 0 or _record.msg_count < 1) and not helper.is_group_admin():
+    if (len(_tasks) > 0 or _record.msg_count < 1) and not (await helper.is_group_admin()):
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
         await asyncio.gather(*_tasks)
         return
