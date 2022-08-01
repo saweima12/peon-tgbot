@@ -122,7 +122,6 @@ async def _process_group_msg(helper: MessageHelepr):
     if (len(_tasks) > 0 or _record.msg_count < 1) and not (await helper.is_group_admin()):
         _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
         await asyncio.gather(*_tasks)
-        return
 
     if not helper.is_text() or helper.is_forward():
         return 
