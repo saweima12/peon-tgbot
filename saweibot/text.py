@@ -13,3 +13,6 @@ QUERY_FAILED_TIPS = "查詢失敗，找不到對象。"
 
 DELETED_COUNT_TIPS = "今日刪除訊息共計 {count} 筆 \n詳細資訊：{url}"
 DELETED_PAGE = "https://tassis.github.io/chats/{chat_id}/deletedmsg"
+
+
+SAVE_TIPS = "記錄完成。"
