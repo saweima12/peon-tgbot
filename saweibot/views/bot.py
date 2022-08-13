@@ -1,5 +1,5 @@
 import datetime as dt
-from sanic import HTTPResponse, Request, Blueprint, response, text
+from sanic import HTTPResponse, Request, Blueprint, response
 from sanic.log import logger
 from aiogram.types import Update
 
@@ -19,7 +19,7 @@ async def me(request: Request) -> HTTPResponse:
     _bot = bot.get_bot()
     me = await _bot.get_me()
 
-    return text(me.as_json())
+    return response.text(me.as_json())
 
 
 @bp.post("/<token:str>")
