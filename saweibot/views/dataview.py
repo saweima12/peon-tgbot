@@ -5,7 +5,7 @@ from sanic import Blueprint, Request, response
 from saweibot.data.entities import PeonChatConfig, ChatBehaviorRecord, ChatDeletedMessage
 from saweibot.data.schema import AvailableChatSchema, ChatMemberPointSchema, ChatDeleteMessageSchema
 
-bp = Blueprint("dataview", url_prefix="/dataview")
+bp = Blueprint("dataview", url_prefix="/peon/dataview")
 
 @bp.get("/chats")
 async def get_chats(request: Request):

@@ -1,11 +1,8 @@
 import os
-import asyncio
 from sanic import Sanic
-from sanic.log import logger
-
 from tortoise.contrib.sanic import register_tortoise
 
-from saweibot import config, registerer
+from saweibot import config, middleware, registerer
 
 # define sanic app
 app = Sanic(__name__)
@@ -17,6 +14,9 @@ if env_config_path and os.path.exists(env_config_path):
     app.update_config(env_config_path)
 
 orm_modules = {}
+
+# register middleware.
+middleware.register(app)
 
 # register services.
 registerer.setup(app, orm_modules)
