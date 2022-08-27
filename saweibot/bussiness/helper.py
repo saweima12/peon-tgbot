@@ -95,16 +95,16 @@ class MessageHelepr():
     
     def get_mentions(self) -> List[MessageEntity]:
         if self.msg.entities:
-            mention_entites = [entity for entity in self.msg.entities if entity.type == "mention"]
-            if len(mention_entites) > 0:
-                return mention_entites
+            mention_entities = [entity for entity in self.msg.entities if entity.type == "mention"]
+            if len(mention_entities) > 0:
+                return mention_entities
         return None
     
     def get_custom_emoji(self) -> List[MessageEntity]:
         if self.msg.entities:
-            emoji_entites = [entity for entity in self.msg.entities if entity.type == "custom_emoji"]
-            if len(emoji_entites) > 0:
-                return emoji_entites
+            emoji_entities = [entity for entity in self.msg.entities if entity.type == "custom_emoji"]
+            if len(emoji_entities) > 0:
+                return emoji_entities
         return None
         
     async def is_group_admin(self) -> bool:
