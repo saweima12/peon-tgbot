@@ -99,7 +99,13 @@ class MessageHelepr():
             if len(mention_entites) > 0:
                 return mention_entites
         return None
-
+    
+    def get_custom_emoji(self) -> List[MessageEntity]:
+        if self.msg.entities:
+            emoji_entites = [entity for entity in self.msg.entities if entity.type == "custom_emoji"]
+            if len(emoji_entites) > 0:
+                return emoji_entites
+        return None
         
     async def is_group_admin(self) -> bool:
         wrapper = self.chat_config_wrapper()

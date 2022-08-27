@@ -174,5 +174,8 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
             if re.match(ptn, _id, re.I):
                 return True
 
+    if helper.get_custom_emoji():
+        return True
+
     return False
         
