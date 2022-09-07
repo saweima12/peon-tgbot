@@ -169,10 +169,7 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
     ptn = r".+bot$"
 
     if mentions:
-        for mention in mentions:
-            _id = (mention.get_text(helper.msg.text))
-            if re.match(ptn, _id, re.I):
-                return True
+        return True
 
     if helper.get_custom_emoji():
         return True
