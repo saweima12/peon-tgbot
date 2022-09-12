@@ -10,6 +10,7 @@ class ChatConfigModel(OrjsonBaseModel):
     status: Status = Status.OK
     senior_count = 300
     check_lowest_count = 20
+    allow_forward = []
     adminstrators: List[str] = []
 
 class ChatWatchUserModel(OrjsonBaseModel):

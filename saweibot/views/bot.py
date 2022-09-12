@@ -43,14 +43,13 @@ async def peon(request: Request, token: str) -> HTTPResponse:
     logger.debug(f"Update: {request.json}")
     _update = Update(**request.json)
 
-    # get session
-    session = await _bot.get_session()
     try:
+        # process bot session.
+        session = await _bot.get_session()
         await _dp.process_update(_update)
-        await session.close()
-        return response.empty(status=200)
     except Exception as _e:
         logger.error(_e)
+    finally:
         await session.close()
         return response.empty(status=200)
 

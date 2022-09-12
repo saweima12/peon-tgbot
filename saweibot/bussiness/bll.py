@@ -105,16 +105,15 @@ async def _process_group_msg(helper: MessageHelepr):
     behavior_wrapper = helper.behavior_wrapper()
     _record = await behavior_wrapper.get(helper.user_id)
     
-
-    need_delete = False
+    is_allow = True
     # check message.
     if _member.status != "ok":
-        need_delete = await _check_member_msg(helper, _record)
+        is_allow = await _check_message_allow(helper, _record)
     
     # process task
     _tasks = []
 
-    if need_delete:
+    if not is_allow:
         _tasks.append(helper.msg.delete())
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
@@ -134,22 +133,46 @@ async def _process_group_msg(helper: MessageHelepr):
     _record.msg_count += 1
     await behavior_wrapper.set(helper.user_id, _record)
 
-async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordModel):
+async def _check_message_allow(helper: MessageHelepr, record: ChatBehaviorRecordModel):
 
     if await helper.is_group_admin():
+        return True
+    
+    if helper.is_forward():
+        # check channel id is allow ?
+        config = await helper.chat_config_wrapper().get_model()
+        from_chat = helper.msg.forward_from_chat
+        if from_chat:
+            from_id = str(from_chat.id)
+
+            if from_id == helper.chat_id:
+                return True
+
+            if from_id in config.allow_forward:
+                return True
         return False
 
     # user isn't admin and content is not text, delete it.
-    if not helper.is_text() or helper.is_forward():
-        return True
+    if not helper.is_text():
+        return False
+
+    if helper.msg.via_bot:
+        return False
+    
+    if helper.get_custom_emoji():
+        return False
+
+    if helper.get_mentions():
+        return False
 
     # is first send message and has_url ?
     if helper.has_url():
         # get url blacklist wrapper.
         url_blacklist_wrapper = helper.url_blacklist_wrapper()
 
+        # is first send, remvoe it.
         if record.msg_count < 1:
-            return True
+            return False
         
         # get entities url from message.
         urls = [ entity.get_text(helper.msg.text) for entity in helper.msg.entities if entity.type == "url"]
@@ -160,19 +183,6 @@ async def _check_member_msg(helper: MessageHelepr, record: ChatBehaviorRecordMod
             _ptn = r".+({}).+".format(pattern)
             for url in urls:
                 if re.match(_ptn, url):
-                    return True
-    
-    if helper.msg.via_bot:
-        return True
-    
-    mentions = helper.get_mentions()
-    ptn = r".+bot$"
+                    return False
 
-    if mentions:
-        return True
-
-    if helper.get_custom_emoji():
-        return True
-
-    return False
-        
+    return True
