@@ -4,7 +4,7 @@ from sanic.exceptions import BadURL
 from saweibot import views
 from saweibot.data.entities import PeonChatConfig
 from saweibot.data.wrappers.chat_config import ChatConfigWrapper
-from saweibot.services import redis, scheduler, bot
+from saweibot.services import redis, scheduler, bot, opencc
 from saweibot.bussiness.task import check_watchlist, proxy_to_db, cache_group_admin, load_config
 
 from .meta import SERVICE_CODE
@@ -12,7 +12,9 @@ from .meta import SERVICE_CODE
 
 def setup(app: Sanic, orm_modules: dict):
     # register service.
-    _redis = redis.register(app)
+    redis.register(app)
+    opencc.register(app)
+    
     _scheduler = scheduler.register(app)
     _bot = bot.register(app)
     
