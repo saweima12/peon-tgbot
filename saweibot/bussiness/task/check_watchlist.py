@@ -75,7 +75,7 @@ def register_task(scheduler: AppScheduler):
 
 
                     if watch_member.ng_count != 0:
-                        task_list.append(await watch_wrapper.save_db(member_id, watch_member))
+                        task_list.append(watch_wrapper.save_db(member_id, watch_member))
                     
 
                 if task_list:
