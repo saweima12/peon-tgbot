@@ -68,12 +68,15 @@ def register_task(scheduler: AppScheduler):
                     # get member's behavior record
                     record = await behavior_wrapper.get(member_id)
 
-                    if record.msg_count < config.senior_count:
+                    if record.msg_count > config.senior_count:
+                        watch_member.status = "ok"
+                        task_list.append(update_member_status(member_id, watch_member, record))
                         continue
+
+
+                    if watch_member.ng_count != 0:
+                        await watch_wrapper.save_db(member_id, watch_member)
                     
-                    # add task
-                    watch_member.status = "ok"
-                    task_list.append(update_member_status(member_id, watch_member, record))
 
                 if task_list:
                     await asyncio.gather(*task_list)
