@@ -1,17 +1,19 @@
 # coding=utf-8
+from datetime import timedelta
 import re
 import asyncio
+from typing import List
 from sanic.log import logger
 from aiogram.types import Message
 
+from saweibot.meta import SERVICE_CODE
+from saweibot.services import opencc
 from saweibot.data.entities import PeonChatConfig
 from saweibot.data.models import ChatBehaviorRecordModel
-from saweibot.meta import SERVICE_CODE
-from saweibot.text import FIRST_URL_TIPS, MEDIA_MESSAGE_TIPS
 
 from .command import map as command_map
 from .helper import MessageHelepr
-from .operate import set_media_permission, record_deleted_message
+from .operate import PermissionLevel, set_media_permission, record_deleted_message
 
 async def process_start_command(message: Message):
     helper = MessageHelepr(SERVICE_CODE, message)
@@ -105,21 +107,32 @@ async def _process_group_msg(helper: MessageHelepr):
     behavior_wrapper = helper.behavior_wrapper()
     _record = await behavior_wrapper.get(helper.user_id)
     
-    is_allow = True
+    ng_point = 0
     # check message.
     if _member.status != "ok":
-        is_allow = await _check_message_allow(helper, _record)
+        ng_point = await _get_ng_point(helper, _record)
     
     # process task
     _tasks = []
 
-    if not is_allow:
+    # add delete task 
+    if ng_point >= 2:
         _tasks.append(helper.msg.delete())
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
 
-    if (len(_tasks) > 0 or _record.msg_count < 1) and not (await helper.is_group_admin()):
-        _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, False))
+        if _record.msg_count > 0:
+            _member.ng_count += 1
+
+    # execute set_permission task.
+    if (len(_tasks) > 0 or _record.msg_count < 1):
+        if _member.ng_count >= 3:
+            _delta = timedelta(minutes=30) * _member.ng_count
+            _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.CURB,  _delta))
+        else:
+            _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.LIMIT))
+
+
         await asyncio.gather(*_tasks)
 
     if not helper.is_text() or helper.is_forward():
@@ -128,29 +141,84 @@ async def _process_group_msg(helper: MessageHelepr):
     if not len(helper.msg.text) >= 2:
         return
 
-    # increase message counter
+    # increase message counter & ng_count
     _record.full_name = helper.user.full_name
     _record.msg_count += 1
-    await behavior_wrapper.set(helper.user_id, _record)
+    await asyncio.gather(
+        behavior_wrapper.set(helper.user_id, _record),
+        watcher_wrapper.set(helper.user_id, _member)
+    )
 
-async def _check_message_allow(helper: MessageHelepr, record: ChatBehaviorRecordModel):
+async def _get_ng_point(helper: MessageHelepr, record: ChatBehaviorRecordModel) -> int:
 
     if await helper.is_group_admin():
-        return True
-    
+        return 0
+
+    point = 0
+    # check message type & content allow ?
+    config = await helper.chat_config_wrapper().get_model()
+
     if helper.is_forward():
-        # check channel id is allow ?
-        config = await helper.chat_config_wrapper().get_model()
-        from_chat = helper.msg.forward_from_chat
-        if from_chat:
-            from_id = str(from_chat.id)
+        # check is forward message ?.
+        if not check_forward_allow(helper, config.allow_forward):
+            point += 2
+    else:
+        # check content.
+        url_blacklist = await helper.url_blacklist_wrapper().get_model()
+        if not check_content_allow(helper, url_blacklist.pattern_list):
+            point += 2 
 
-            if from_id == helper.chat_id:
-                return True
+    # check user name.
+    if not check_username_allow(helper, config.block_name_keywords):
+        point += 1
 
-            if from_id in config.allow_forward:
-                return True
+    # check message length.
+    if helper.is_text():
+        if len(helper.msg.text) < 3:
+            point +=1
+
+    return point
+
+def check_username_allow(helper: MessageHelepr, keywords: List[str] = []) -> bool:
+
+    if not keywords:
+        return True
+
+    # extract all chinese_keyword.
+    c_str = "".join(re.findall(r"([\u4E00-\u9FFF]+)", helper.user.full_name))
+    # converter
+    converter = opencc.get()
+    tc_str = converter.convert(c_str)
+
+    # create ptn
+    temp = "|".join(keywords)
+    ptn = f"((?:{temp}))"
+
+    # match keyword
+    result = re.findall(ptn, tc_str)
+
+    if result:
         return False
+
+    return True
+
+
+def check_forward_allow(helper: MessageHelepr, allow_list: List[str] = []) -> bool:
+     # check channel id is allow ?
+    from_chat = helper.msg.forward_from_chat
+
+    if from_chat:
+        from_id = str(from_chat.id)
+
+        if from_id == helper.chat_id:
+            return True
+
+        if from_id in allow_list:
+            return True
+
+    return False
+    
+def check_content_allow(helper: MessageHelepr, block_url_list: List[str] = []) -> bool:
 
     # user isn't admin and content is not text, delete it.
     if not helper.is_text():
@@ -165,21 +233,12 @@ async def _check_message_allow(helper: MessageHelepr, record: ChatBehaviorRecord
     if helper.get_mentions():
         return False
 
-    # is first send message and has_url ?
     if helper.has_url():
-        # get url blacklist wrapper.
-        url_blacklist_wrapper = helper.url_blacklist_wrapper()
-
-        # is first send, remvoe it.
-        if record.msg_count < 1:
-            return False
-        
         # get entities url from message.
         urls = [ entity.get_text(helper.msg.text) for entity in helper.msg.entities if entity.type == "url"]
-        # get blacklist from proxy.
-        _blacklist = await url_blacklist_wrapper.get_model()
+        
         # check pattern & url
-        for pattern in _blacklist.pattern_list:
+        for pattern in block_url_list:
             _ptn = r".+({}).+".format(pattern)
             for url in urls:
                 if re.match(_ptn, url):

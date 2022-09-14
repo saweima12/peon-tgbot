@@ -5,7 +5,7 @@ from saweibot.utils.type_helper import parse_int
 from saweibot.text import NEED_REPLY_MESSAGE, SET_POINT
 
 from ..helper import MessageHelepr
-from ..operate import set_media_permission
+from ..operate import PermissionLevel, set_media_permission
 
 async def set_reocrd_point(*params, helper: MessageHelepr):
 
@@ -48,11 +48,11 @@ async def set_reocrd_point(*params, helper: MessageHelepr):
         # set watcher state.
         if record.msg_count >= config.senior_count:
             member.status = "ok"
-            await set_media_permission(helper.bot, helper.chat_id, target_id, True)
+            await set_media_permission(helper.bot, helper.chat_id, target_id, PermissionLevel.ALLOW)
             logger.info(f"Point over than {config.senior_count}, open sticker permission.")
         else:
             member.status = "ng"
-            await set_media_permission(helper.bot, helper.chat_id, target_id, True)
+            await set_media_permission(helper.bot, helper.chat_id, target_id, PermissionLevel.ALLOW)
             logger.info(f"Point lower than {config.senior_count}, close sticker permission.")
 
         await asyncio.gather(

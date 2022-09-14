@@ -8,15 +8,17 @@ class StatusMapModel(OrjsonBaseModel):
 
 class ChatConfigModel(OrjsonBaseModel):
     status: Status = Status.OK
-    senior_count = 300
-    check_lowest_count = 20
-    allow_forward = []
+    senior_count: int = 300
+    check_lowest_count: int = 20
     adminstrators: List[str] = []
+    allow_forward:List[str] = []
+    block_name_keywords: List[str] = []
 
 class ChatWatchUserModel(OrjsonBaseModel):
     user_id: str
     full_name: str = ""
     status: str = "ng"
+    ng_count: int = 0
 
 class ChatMessageModel(OrjsonBaseModel):
     message_id: str

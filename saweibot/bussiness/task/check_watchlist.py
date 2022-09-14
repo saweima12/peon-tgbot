@@ -12,7 +12,7 @@ from saweibot.meta import SERVICE_CODE
 
 from saweibot.services.scheduler.struct import AppScheduler
 
-from ..operate import set_media_permission
+from ..operate import PermissionLevel, set_media_permission
 
 def register_task(scheduler: AppScheduler):
 
@@ -43,7 +43,7 @@ def register_task(scheduler: AppScheduler):
                 if member_id in config.adminstrators:
                     return
 
-                await set_media_permission(bot, chat.chat_id, member_id, True)
+                await set_media_permission(bot, chat.chat_id, member_id, PermissionLevel.ALLOW)
                 logger.info(f"set [{record.full_name}]'s member permission")
 
 
