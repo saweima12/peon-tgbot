@@ -133,7 +133,10 @@ async def _process_group_msg(helper: MessageHelepr):
             _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.LIMIT))
 
 
-        await asyncio.gather(*_tasks)
+        await asyncio.gather(
+            *_tasks, 
+            watcher_wrapper.set(helper.user_id, _member)
+        )
 
     if not helper.is_text() or helper.is_forward():
         return 
@@ -145,8 +148,7 @@ async def _process_group_msg(helper: MessageHelepr):
     _record.full_name = helper.user.full_name
     _record.msg_count += 1
     await asyncio.gather(
-        behavior_wrapper.set(helper.user_id, _record),
-        watcher_wrapper.set(helper.user_id, _member)
+        behavior_wrapper.set(helper.user_id, _record)
     )
 
 async def _get_ng_point(helper: MessageHelepr, record: ChatBehaviorRecordModel) -> int:
