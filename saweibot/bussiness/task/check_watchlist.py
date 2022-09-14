@@ -68,7 +68,7 @@ def register_task(scheduler: AppScheduler):
                     # get member's behavior record
                     record = await behavior_wrapper.get(member_id)
 
-                    if record.msg_count < config.senior_count:
+                    if record.msg_count < config.senior_count and watch_member.ng_count == 0:
                         continue
                     
                     # add task
