@@ -22,66 +22,70 @@ def register_task(scheduler: AppScheduler):
         chats = await PeonChatConfig.filter(status="ok")
         bot = get_bot()
         session = await bot.get_session()
-        for chat in chats:
-            # traversal all watch group.
-            behavior_wrapper = BehaviorRecordWrapper(SERVICE_CODE, chat.chat_id)
-            config_wrapper = ChatConfigWrapper(SERVICE_CODE, chat.chat_id)
-            watch_wrapper = ChatWatcherUserWrapper(SERVICE_CODE, chat.chat_id)
+        try:
+            for chat in chats:
+                # traversal all watch group.
+                behavior_wrapper = BehaviorRecordWrapper(SERVICE_CODE, chat.chat_id)
+                config_wrapper = ChatConfigWrapper(SERVICE_CODE, chat.chat_id)
+                watch_wrapper = ChatWatcherUserWrapper(SERVICE_CODE, chat.chat_id)
 
-            # get chatConfig model & watch member id.
-            config = await config_wrapper.get_model()
-            watch_member_ids = await watch_wrapper.keys()
+                # get chatConfig model & watch member id.
+                config = await config_wrapper.get_model()
+                watch_member_ids = await watch_wrapper.keys()
 
-            async def update_member_status(member_id: str,
-                                        data: ChatWatchUserModel, 
-                                        record: ChatBehaviorRecordModel):
-                # set redis & database.
-                await watch_wrapper.set(member_id, data)
-                await watch_wrapper.save_db(member_id, data)
-                await behavior_wrapper.save_db(member_id, record)
-                # post telegram api.
-                if member_id in config.adminstrators:
-                    return
+                async def update_member_status(member_id: str,
+                                            data: ChatWatchUserModel, 
+                                            record: ChatBehaviorRecordModel):
+                    # set redis & database.
+                    await watch_wrapper.set(member_id, data)
+                    await watch_wrapper.save_db(member_id, data)
+                    await behavior_wrapper.save_db(member_id, record)
+                    # post telegram api.
+                    if member_id in config.adminstrators:
+                        return
 
-                await set_media_permission(bot, chat.chat_id, member_id, PermissionLevel.ALLOW)
-                logger.info(f"set [{record.full_name}]'s member permission")
+                    await set_media_permission(bot, chat.chat_id, member_id, PermissionLevel.ALLOW)
+                    logger.info(f"set [{record.full_name}]'s member permission")
 
 
-            task_list = []
-            _range = 10
-            freq = len(watch_member_ids) // _range
-
-            # process member
-            for num in range(0, freq + 1):
                 task_list = []
-                start = num * _range
-                end = (num + 1) * _range
+                _range = 10
+                freq = len(watch_member_ids) // _range
 
-                for member_id in watch_member_ids[start:end]:
-                    # get member status.
-                    watch_member = await watch_wrapper.get(member_id)
+                # process member
+                for num in range(0, freq + 1):
+                    task_list = []
+                    start = num * _range
+                    end = (num + 1) * _range
 
-                    # Ignore members with a status of OK 
-                    if watch_member.status == "ok":
-                        continue
-                    
-                    # get member's behavior record
-                    record = await behavior_wrapper.get(member_id)
+                    for member_id in watch_member_ids[start:end]:
+                        # get member status.
+                        watch_member = await watch_wrapper.get(member_id)
 
-                    if record.msg_count > config.senior_count:
-                        watch_member.status = "ok"
-                        task_list.append(update_member_status(member_id, watch_member, record))
-                        continue
+                        # Ignore members with a status of OK 
+                        if watch_member.status == "ok":
+                            continue
+                        
+                        # get member's behavior record
+                        record = await behavior_wrapper.get(member_id)
+
+                        if record.msg_count > config.senior_count:
+                            watch_member.status = "ok"
+                            task_list.append(update_member_status(member_id, watch_member, record))
+                            continue
 
 
-                    if watch_member.ng_count != 0:
-                        task_list.append(watch_wrapper.save_db(member_id, watch_member))
-                    
+                        if watch_member.ng_count != 0:
+                            task_list.append(watch_wrapper.save_db(member_id, watch_member))
+                        
 
-                if task_list:
-                    await asyncio.gather(*task_list)
-            
-            # task finished, remove watchlist.
-            logger.debug("remove proxy.")
-            await watch_wrapper.delete_proxy()
+                    if task_list:
+                        await asyncio.gather(*task_list)
+                
+                # task finished, remove watchlist.
+                logger.debug("remove proxy.")
+                await watch_wrapper.delete_proxy()
+        except Exception as _e:
+            logger.error(_e)
+        finally:
             await session.close()
