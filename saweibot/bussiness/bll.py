@@ -116,7 +116,7 @@ async def _process_group_msg(helper: MessageHelepr):
     _tasks = []
 
     # add delete task 
-    if ng_point >= 2:
+    if ng_point >= 5:
         _tasks.append(helper.msg.delete())
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
@@ -163,34 +163,31 @@ async def _get_ng_point(helper: MessageHelepr, record: ChatBehaviorRecordModel) 
     if helper.is_forward():
         # check is forward message ?.
         if not check_forward_allow(helper, config.allow_forward):
-            point += 2
+            point += 5
     else:
         # check content.
         url_blacklist = await helper.url_blacklist_wrapper().get_model()
         if not check_content_allow(helper, url_blacklist.pattern_list):
-            point += 2 
+            point += 5 
 
     # check user name.
-    if not check_username_allow(helper, config.block_name_keywords):
-        point += 1
+    point += get_username_ngpoint(helper, config.block_name_keywords)
 
     # check message length.
     if helper.is_text():
-        if len(helper.msg.text) < 3:
-            point +=1
+        if len(helper.msg.text) <= 3:
+            point +=2
 
     return point
 
-def check_username_allow(helper: MessageHelepr, keywords: List[str] = []) -> bool:
+def get_username_ngpoint(helper: MessageHelepr, keywords: List[str] = []) -> int:
 
     if not keywords:
-        return True
+        return 0
 
-    # extract all chinese_keyword.
-    c_str = "".join(re.findall(r"([\u4E00-\u9FFF]+)", helper.user.full_name))
     # converter
     converter = opencc.get()
-    tc_str = converter.convert(c_str)
+    tc_str = converter.convert(helper.user.full_name)
 
     # create ptn
     temp = "|".join(keywords)
@@ -200,9 +197,10 @@ def check_username_allow(helper: MessageHelepr, keywords: List[str] = []) -> boo
     result = re.findall(ptn, tc_str)
 
     if result:
-        return False
-
-    return True
+        count = len(result)
+        print(count)
+        return 4 if count > 4 else count
+    return 0
 
 
 def check_forward_allow(helper: MessageHelepr, allow_list: List[str] = []) -> bool:
