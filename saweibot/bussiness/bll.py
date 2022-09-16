@@ -125,7 +125,7 @@ async def _process_group_msg(helper: MessageHelepr):
     # execute set_permission task.
     if (len(_tasks) > 0 or _record.msg_count < 1):
         if _member.ng_count >= 3:
-            _delta = timedelta(minutes=30) * _member.ng_count
+            _delta = timedelta(minutes=60) * _member.ng_count
             _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.CURB,  _delta))
         else:
             _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.LIMIT))
