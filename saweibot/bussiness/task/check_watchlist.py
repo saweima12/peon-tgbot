@@ -72,12 +72,6 @@ def register_task(scheduler: AppScheduler):
                         if record.msg_count > config.senior_count:
                             watch_member.status = "ok"
                             task_list.append(update_member_status(member_id, watch_member, record))
-                            continue
-
-
-                        if watch_member.ng_count != 0:
-                            task_list.append(watch_wrapper.save_db(member_id, watch_member))
-                        
 
                     if task_list:
                         await asyncio.gather(*task_list)
