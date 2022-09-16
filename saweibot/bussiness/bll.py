@@ -185,6 +185,8 @@ def get_username_ngpoint(helper: MessageHelepr, keywords: List[str] = []) -> int
     if not keywords:
         return 0
 
+
+    result = 0
     # converter
     converter = opencc.get()
     tc_str = converter.convert(helper.user.full_name)
@@ -196,10 +198,13 @@ def get_username_ngpoint(helper: MessageHelepr, keywords: List[str] = []) -> int
     # match keyword
     result = re.findall(ptn, tc_str)
 
+    if len(helper.user.full_name) <= 2:
+        result += 1
+
     if result:
-        count = len(result)
-        print(count)
-        return 4 if count > 4 else count
+        result += len(result)
+        return 4 if result > 4 else result
+
     return 0
 
 
