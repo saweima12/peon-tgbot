@@ -200,7 +200,7 @@ def get_username_ngpoint(helper: MessageHelepr, keywords: List[str] = []) -> int
 
     if result:
         point += len(result)
-        return 4 if point > 4 else result
+        return 4 if point > 4 else point
 
     return 0
 
