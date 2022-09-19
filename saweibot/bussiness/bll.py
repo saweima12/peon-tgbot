@@ -120,14 +120,12 @@ async def _process_group_msg(helper: MessageHelepr):
         _tasks.append(helper.msg.delete())
         _tasks.append(record_deleted_message(helper.chat_id, helper.msg))
         logger.info(f"Remove user {helper.user.full_name}'s message: {helper.message_model.dict()}")
-
-        if _record.msg_count > 0:
-            _member.ng_count += 1
+        _member.ng_count += 1
 
     # execute set_permission task.
     if (len(_tasks) > 0 or _record.msg_count < 1):
         if _member.ng_count >= 3:
-            _delta = timedelta(minutes=30) * _member.ng_count
+            _delta = timedelta(minutes=60) * _member.ng_count
             _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.CURB,  _delta))
         else:
             _tasks.append(set_media_permission(helper.bot, helper.chat_id, helper.user_id, PermissionLevel.LIMIT))
@@ -141,7 +139,7 @@ async def _process_group_msg(helper: MessageHelepr):
     if not helper.is_text() or helper.is_forward():
         return 
 
-    if not len(helper.msg.text) >= 2:
+    if not len(helper.msg.text) >= 3:
         return
 
     # increase message counter & ng_count
@@ -202,7 +200,7 @@ def get_username_ngpoint(helper: MessageHelepr, keywords: List[str] = []) -> int
 
     if result:
         point += len(result)
-        return 4 if point > 4 else result
+        return 4 if point > 4 else point
 
     return 0
 
