@@ -20,5 +20,5 @@ async def get_point(*params, helper: MessageHelepr):
     await asyncio.gather(
         temp.delete(),
         helper.msg.delete(),
-        wrapper.save_db(helper.user_id, _model)
+        wrapper.set(helper.user_id, _model)
     )
