@@ -42,6 +42,7 @@ async def record_deleted_message(chat_id: str, data: Message):
 
     _data['full_name'] = data.from_user.full_name
     _data['content_type'] = data.content_type
+    _data['username'] = data.from_user.username
 
     # write into database 
     await ChatDeletedMessage.create(chat_id=chat_id, 
